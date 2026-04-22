@@ -156,8 +156,8 @@ export default function ControlPage() {
                 </button>
               </div>
               {(team.team_members || []).map(m => (
-                <div key={m.users?.id} style={{ fontSize: '0.65rem', color: 'var(--dirty)', padding: '4px 0', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span>{m.users?.username}</span>
+                <div key={m.profiles?.id} style={{ fontSize: '0.65rem', color: 'var(--dirty)', padding: '4px 0', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>{m.profiles?.username}</span>
                   {m.is_captain && <span style={{ fontSize: '0.5rem', color: 'var(--red2)' }}>★</span>}
                 </div>
               ))}
