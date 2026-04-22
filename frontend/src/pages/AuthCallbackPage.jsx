@@ -1,19 +1,24 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 
 export default function AuthCallbackPage() {
-  const { user } = useAuth()
-  const navigate  = useNavigate()
-  const fallback  = useRef(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    if (user) { clearTimeout(fallback.current); navigate('/', { replace: true }) }
-  }, [user, navigate])
-
-  useEffect(() => {
-    fallback.current = setTimeout(() => navigate('/login', { replace: true }), 10000)
-    return () => clearTimeout(fallback.current)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/', { replace: true })
+      } else {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (session) {
+            subscription.unsubscribe()
+            navigate('/', { replace: true })
+          }
+        })
+        setTimeout(() => { subscription.unsubscribe(); navigate('/login', { replace: true }) }, 10000)
+      }
+    })
   }, [])
 
   return (
