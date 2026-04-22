@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { supabase } from './supabase'
 
-const api = axios.create({ baseURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001' })
+const api = axios.create({ baseURL: (import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001') + '/api' })
 
 api.interceptors.request.use(async config => {
   const { data: { session } } = await supabase.auth.getSession()
