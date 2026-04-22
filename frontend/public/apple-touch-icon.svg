@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" fill="#080808"/>
+  <text x="12" y="148" font-family="serif" font-weight="900" font-size="140" fill="#f0f0f0">R</text>
+  <circle cx="155" cy="128" r="18" fill="#ff0a20"/>
+</svg>
