@@ -132,7 +132,7 @@ export default function CommunityPage() {
 
         {/* Live / Upcoming banner */}
         {liveSession && (
-          <Link to={`/c/${slug}/sessions/${liveSession.id}`} style={{ display: 'block', background: 'var(--red)', border: '1px solid var(--red2)', padding: '18px 24px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          <Link to={`/c/${slug}/sessions/${liveSession.id}`} style={{ background: 'var(--red)', border: '1px solid var(--red2)', padding: '18px 24px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <div style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>● Live Now</div>
               <div style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: '1rem', color: '#fff', letterSpacing: '0.1em' }}>{liveSession.title}</div>
