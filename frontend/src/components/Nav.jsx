@@ -8,21 +8,28 @@ export default function Nav() {
   async function handleSignOut() { await signOut(); navigate('/') }
 
   const avatar = user?.user_metadata?.avatar_url
-  const name   = user?.user_metadata?.full_name || user?.user_metadata?.name
 
   return (
     <nav className="nav">
       <Link to="/" className="nav-logo">RECOIL<span>.</span></Link>
+
       <div className="nav-links">
         {!loading && (user ? (
           <>
             <Link to="/dashboard" className="nav-link">Dashboard</Link>
-            <Link to="/create"    className="nav-link">+ Community</Link>
-            {avatar && <img src={avatar} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border2)', marginLeft: 4 }} />}
-            <button onClick={handleSignOut} className="btn-ghost" style={{ fontSize: '0.6rem', padding: '5px 12px' }}>Sign Out</button>
+            <Link to="/create" className="nav-link">New Community</Link>
+            <div style={{ width: 1, height: 20, background: 'var(--border2)', margin: '0 6px' }} />
+            {avatar && (
+              <img src={avatar} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border2)' }} />
+            )}
+            <button onClick={handleSignOut} className="btn-ghost" style={{ fontSize: '0.65rem', padding: '6px 14px' }}>
+              Sign Out
+            </button>
           </>
         ) : (
-          <Link to="/login" className="btn-red" style={{ fontSize: '0.6rem', padding: '6px 16px' }}>Login</Link>
+          <Link to="/login" className="btn-red" style={{ fontSize: '0.65rem', padding: '8px 18px' }}>
+            Login
+          </Link>
         ))}
       </div>
     </nav>
