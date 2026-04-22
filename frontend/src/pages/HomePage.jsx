@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
 
+const TICKER_ITEMS = ['Custom Lobbies', 'Team Management', 'Live Rounds', 'Join Codes', 'Community Hubs', 'Host Control', 'Custom Lobbies', 'Team Management', 'Live Rounds', 'Join Codes', 'Community Hubs', 'Host Control']
+
 const FEATURES = [
   { n: '01', label: 'Community Hubs', desc: 'A permanent home for your group. Members, roles, announcements, full history.' },
   { n: '02', label: 'Session Control', desc: 'Open signups, fill teams, distribute join codes and manage events live.' },
@@ -40,6 +42,15 @@ export default function HomePage() {
 
   return (
     <div>
+      {/* ── Ticker ── */}
+      <div className="ticker">
+        <div className="ticker-inner">
+          {TICKER_ITEMS.map((item, i) => (
+            <span key={i} className="ticker-item">{item}</span>
+          ))}
+        </div>
+      </div>
+
       {/* ── Hero ── */}
       <section style={{ borderBottom: '1px solid var(--rule)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', bottom: -20, left: -20, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontStyle: 'italic', fontSize: 'clamp(8rem, 20vw, 22rem)', lineHeight: 0.85, color: 'transparent', WebkitTextStroke: '1px rgba(255,255,255,0.04)', userSelect: 'none', pointerEvents: 'none', whiteSpace: 'nowrap' }}>RECOIL</div>

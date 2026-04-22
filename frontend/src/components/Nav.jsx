@@ -2,8 +2,6 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const TICKER_ITEMS = ['Custom Lobbies', 'Team Management', 'Live Rounds', 'Join Codes', 'Community Hubs', 'Host Control', 'Custom Lobbies', 'Team Management', 'Live Rounds', 'Join Codes', 'Community Hubs', 'Host Control']
-
 export default function Nav() {
   const { user, loading, signOut } = useAuth()
   const navigate = useNavigate()
@@ -69,14 +67,6 @@ export default function Nav() {
         </div>
       )}
 
-      {/* Ticker */}
-      <div className="ticker">
-        <div className="ticker-inner">
-          {TICKER_ITEMS.map((item, i) => (
-            <span key={i} className="ticker-item">{item}</span>
-          ))}
-        </div>
-      </div>
     </>
   )
 }
