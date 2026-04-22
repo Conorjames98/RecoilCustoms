@@ -211,10 +211,8 @@ label {
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: var(--black); }
-::-webkit-scrollbar-thumb { background: var(--rule2); }
-::-webkit-scrollbar-thumb:hover { background: var(--red); }
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; -ms-overflow-style: none; }
 
 /* ── Mobile ──────────────────────────────────────────────────────── */
 
