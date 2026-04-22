@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
   async function signInWithDiscord() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'discord',
-      options: { redirectTo: window.location.origin }
+      options: { redirectTo: `${window.location.origin}/auth/callback` }
     })
     if (error) throw error
     return data
