@@ -9,21 +9,37 @@ export default function AuthCallbackPage() {
     const code = new URLSearchParams(window.location.search).get('code')
 
     if (code) {
+      // PKCE flow
       supabase.auth.exchangeCodeForSession(code)
         .then(({ error }) => {
-          if (error) {
-            console.error('Auth exchange failed:', error.message)
-            navigate('/login', { replace: true })
-          } else {
-            navigate('/', { replace: true })
-          }
+          navigate(error ? '/login' : '/', { replace: true })
         })
-    } else {
-      // Fallback: no code param, check for existing session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        navigate(session ? '/' : '/login', { replace: true })
-      })
+      return
     }
+
+    // Implicit flow — tokens arrive in the URL hash
+    // onAuthStateChange fires SIGNED_IN once detectSessionInUrl processes the hash
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        subscription.unsubscribe()
+        navigate('/', { replace: true })
+      }
+    })
+
+    // Also check for an existing session in case the event already fired
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        subscription.unsubscribe()
+        navigate('/', { replace: true })
+      }
+    })
+
+    const timeout = setTimeout(() => {
+      subscription.unsubscribe()
+      navigate('/login', { replace: true })
+    }, 10000)
+
+    return () => { clearTimeout(timeout); subscription.unsubscribe() }
   }, [])
 
   return (
