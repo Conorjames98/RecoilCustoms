@@ -47,7 +47,7 @@ router.post('/', requireAuth, async (req, res) => {
 
   const { data: session, error } = await supabase
     .from('sessions')
-    .insert({ community_id, title, description, scheduled_at, created_by: req.user.id, status: 'draft' })
+    .insert({ community_id, title, description, scheduled_at, created_by: req.user.id, status: 'open' })
     .select().single();
   if (error) return res.status(400).json({ error: error.message });
 
