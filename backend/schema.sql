@@ -37,7 +37,7 @@ create trigger on_auth_user_created
 
 -- ─── RLS ──────────────────────────────────────────────────────────────────────
 alter table profiles enable row level security;
-create policy "profiles are viewable by everyone" on profiles for select using (true);
+create policy "profiles viewable by authenticated" on profiles for select using (auth.uid() is not null);
 create policy "users can update own profile" on profiles for update using (auth.uid() = id);
 
 -- ─── COMMUNITIES ─────────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ create table if not exists community_members (
 );
 
 alter table community_members enable row level security;
-create policy "members viewable by community members" on community_members for select using (true);
+create policy "members viewable by community members" on community_members for select using (auth.uid() = user_id or exists (select 1 from community_members cm2 where cm2.community_id = community_id and cm2.user_id = auth.uid()));
 create policy "users can join" on community_members for insert with check (auth.uid() = user_id);
 create policy "users can leave" on community_members for delete using (auth.uid() = user_id);
 
@@ -111,7 +111,10 @@ create table if not exists sessions (
 );
 
 alter table sessions enable row level security;
-create policy "sessions viewable by all" on sessions for select using (true);
+create policy "sessions viewable by members or public" on sessions for select using (
+  exists (select 1 from communities where id = sessions.community_id and visibility in ('public','featured'))
+  or exists (select 1 from community_members where community_id = sessions.community_id and user_id = auth.uid())
+);
 create policy "mods can manage sessions" on sessions for all using (
   exists (select 1 from community_members where community_id = sessions.community_id and user_id = auth.uid() and role in ('owner','moderator'))
 );
@@ -134,7 +137,13 @@ create table if not exists session_rounds (
 );
 
 alter table session_rounds enable row level security;
-create policy "rounds viewable by all" on session_rounds for select using (true);
+create policy "rounds viewable by members" on session_rounds for select using (
+  exists (
+    select 1 from sessions s
+    join community_members cm on cm.community_id = s.community_id
+    where s.id = session_rounds.session_id and cm.user_id = auth.uid()
+  )
+);
 create policy "mods can manage rounds" on session_rounds for all using (
   exists (
     select 1 from sessions s
@@ -155,7 +164,18 @@ create table if not exists teams (
 );
 
 alter table teams enable row level security;
-create policy "teams viewable by all" on teams for select using (true);
+create policy "teams viewable by members" on teams for select using (
+  exists (
+    select 1 from sessions s
+    join community_members cm on cm.community_id = s.community_id
+    where s.id = teams.session_id and cm.user_id = auth.uid()
+  )
+  or exists (
+    select 1 from sessions s
+    join communities c on c.id = s.community_id
+    where s.id = teams.session_id and c.visibility in ('public','featured')
+  )
+);
 create policy "mods can manage teams" on teams for all using (
   exists (
     select 1 from sessions s
@@ -177,7 +197,14 @@ create table if not exists team_members (
 );
 
 alter table team_members enable row level security;
-create policy "team members viewable by all" on team_members for select using (true);
+create policy "team members viewable by session members" on team_members for select using (
+  exists (
+    select 1 from teams t
+    join sessions s on s.id = t.session_id
+    join community_members cm on cm.community_id = s.community_id
+    where t.id = team_members.team_id and cm.user_id = auth.uid()
+  )
+);
 create policy "members can join teams" on team_members for insert with check (auth.uid() = user_id);
 create policy "members can leave teams" on team_members for delete using (auth.uid() = user_id);
 
