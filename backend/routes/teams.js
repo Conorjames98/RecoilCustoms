@@ -18,7 +18,7 @@ router.post('/:id/join', requireAuth, async (req, res) => {
   const { team, session, role } = await getSessionAndRole(req.params.id, req.user.id);
   if (!team) return res.status(404).json({ error: 'Team not found' });
   if (!role) return res.status(403).json({ error: 'You must be a community member to join' });
-  if (!['open', 'filling', 'ready'].includes(session.status)) return res.status(400).json({ error: 'Session is not open for signups' });
+  if (['closed', 'completed'].includes(session.status)) return res.status(400).json({ error: 'Session is no longer accepting signups' });
   if (team.locked) return res.status(400).json({ error: 'Team is locked' });
 
   // Remove from any existing team in this session first

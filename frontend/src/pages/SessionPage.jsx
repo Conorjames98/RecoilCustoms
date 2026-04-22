@@ -9,7 +9,7 @@ function TeamCard({ team, myDbId, myTeam, sessionStatus, onJoin, onLeave, onRena
   const captain = members.find(m => m.is_captain)
   const iAmCaptain = myDbId && captain?.profiles?.id === myDbId
   const iAmOnThisTeam = myDbId && members.some(m => m.profiles?.id === myDbId)
-  const canJoin = myDbId && !myTeam && !team.locked && ['open', 'filling', 'ready'].includes(sessionStatus)
+  const canJoin = myDbId && !myTeam && !team.locked
 
   const [editing, setEditing] = useState(false)
   const [nameVal, setNameVal] = useState(team.name)
