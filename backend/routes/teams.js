@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const requireAuth = require('../middleware/auth');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 async function getSessionAndRole(teamId, userId) {
   const { data: team } = await supabase.from('teams').select('session_id, locked').eq('id', teamId).single();
@@ -34,7 +34,7 @@ router.post('/:id/join', requireAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('team_members')
     .insert({ team_id: req.params.id, user_id: req.user.id, slot_number: slot })
-    .select('*, users(id, username, avatar)').single();
+    .select('*, profiles(id, username, avatar)').single();
   if (error) return res.status(400).json({ error: error.message });
 
   // Update session status

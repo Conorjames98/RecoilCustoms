@@ -2,10 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const requireAuth = require('../middleware/auth');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 // GET /api/users/me
-router.get('/me', requireAuth, (req, res) => res.json(req.user));
+router.get('/me', requireAuth, async (req, res) => {
+  const { data } = await supabase.from('profiles').select('*').eq('id', req.user.id).single();
+  res.json(data || req.user);
+});
 
 // GET /api/users/me/communities
 router.get('/me/communities', requireAuth, async (req, res) => {
@@ -18,7 +21,7 @@ router.get('/me/communities', requireAuth, async (req, res) => {
   res.json(data);
 });
 
-// GET /api/users/me/sessions — sessions user is participating in (across all communities)
+// GET /api/users/me/sessions
 router.get('/me/sessions', requireAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('team_members')

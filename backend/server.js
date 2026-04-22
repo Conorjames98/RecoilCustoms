@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+// Uses SUPABASE_ANON_KEY — RLS handles row-level security
 
 app.set('trust proxy', 1);
 app.use(helmet());

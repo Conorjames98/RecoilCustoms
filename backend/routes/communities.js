@@ -3,7 +3,7 @@ const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const requireAuth = require('../middleware/auth');
 const { optionalAuth } = require('../middleware/auth');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 async function getMemberRole(communityId, userId) {
   const { data } = await supabase
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
 router.get('/:slug', optionalAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('communities')
-    .select('*, users!communities_owner_id_fkey(username, avatar)')
+    .select('*, profiles!communities_owner_id_fkey(username, avatar)')
     .eq('slug', req.params.slug)
     .single();
   if (error || !data) return res.status(404).json({ error: 'Community not found' });
@@ -58,7 +58,7 @@ router.get('/:slug/members', async (req, res) => {
   if (!community) return res.status(404).json({ error: 'Not found' });
   const { data, error } = await supabase
     .from('community_members')
-    .select('role, joined_at, users(id, username, avatar)')
+    .select('role, joined_at, profiles(id, username, avatar)')
     .eq('community_id', community.id)
     .order('joined_at', { ascending: true });
   if (error) return res.status(500).json({ error: error.message });
@@ -71,7 +71,7 @@ router.get('/:slug/announcements', async (req, res) => {
   if (!community) return res.status(404).json({ error: 'Not found' });
   const { data, error } = await supabase
     .from('announcements')
-    .select('*, users(username, avatar)')
+    .select('*, profiles(username, avatar)')
     .eq('community_id', community.id)
     .order('pinned', { ascending: false })
     .order('created_at', { ascending: false })
@@ -143,7 +143,7 @@ router.post('/:slug/announcements', requireAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('announcements')
     .insert({ community_id: community.id, author_id: req.user.id, content, pinned: pinned || false })
-    .select('*, users(username, avatar)').single();
+    .select('*, profiles(username, avatar)').single();
   if (error) return res.status(400).json({ error: error.message });
   res.json(data);
 });

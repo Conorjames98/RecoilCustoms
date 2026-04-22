@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const requireAuth = require('../middleware/auth');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 async function getMemberRole(communityId, userId) {
   const { data } = await supabase.from('community_members').select('role').eq('community_id', communityId).eq('user_id', userId).single();
@@ -13,7 +13,7 @@ async function getMemberRole(communityId, userId) {
 router.get('/', async (req, res) => {
   const { community_id, status } = req.query;
   if (!community_id) return res.status(400).json({ error: 'community_id required' });
-  let query = supabase.from('sessions').select('*, users!sessions_created_by_fkey(username, avatar)').eq('community_id', community_id);
+  let query = supabase.from('sessions').select('*, profiles!sessions_created_by_fkey(username, avatar)').eq('community_id', community_id);
   if (status) query = query.eq('status', status);
   const { data, error } = await query.order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
@@ -24,14 +24,14 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { data: session, error } = await supabase
     .from('sessions')
-    .select('*, users!sessions_created_by_fkey(username, avatar)')
+    .select('*, profiles!sessions_created_by_fkey(username, avatar)')
     .eq('id', req.params.id)
     .single();
   if (error || !session) return res.status(404).json({ error: 'Session not found' });
 
   const [{ data: rounds }, { data: teams }] = await Promise.all([
     supabase.from('session_rounds').select('*').eq('session_id', req.params.id).order('round_number'),
-    supabase.from('teams').select('*, team_members(slot_number, is_captain, users(id, username, avatar, discord_id))').eq('session_id', req.params.id).order('team_number')
+    supabase.from('teams').select('*, team_members(slot_number, is_captain, profiles(id, username, avatar, discord_id))').eq('session_id', req.params.id).order('team_number')
   ]);
 
   res.json({ ...session, rounds: rounds || [], teams: teams || [] });
@@ -136,7 +136,7 @@ router.post('/:id/shuffle', requireAuth, async (req, res) => {
   // Return updated session
   const { data: updatedTeams } = await supabase
     .from('teams')
-    .select('*, team_members(slot_number, is_captain, users(id, username, avatar, discord_id))')
+    .select('*, team_members(slot_number, is_captain, profiles(id, username, avatar, discord_id))')
     .eq('session_id', req.params.id)
     .order('team_number');
 
