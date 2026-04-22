@@ -1,108 +1,26 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
 
 const FEATURES = [
-  { n: '01', label: 'Community Hubs', desc: 'A permanent home for your group. Members, roles, announcements, and full session history in one place.' },
-  { n: '02', label: 'Session Control', desc: 'Open signups, build teams, distribute join codes and manage multi-round events in real time.' },
-  { n: '03', label: 'Live Rounds', desc: 'Move players, lock teams, post codes and push updates to everyone as the game unfolds.' },
-  { n: '04', label: 'Rules Presets', desc: 'Knives only, snipers only, anything goes — configure per round and broadcast instantly.' },
+  { n: '01', label: 'Community Hubs', desc: 'A permanent home for your group. Members, roles, announcements, full history.' },
+  { n: '02', label: 'Session Control', desc: 'Open signups, fill teams, distribute join codes and manage events live.' },
+  { n: '03', label: 'Live Rounds', desc: 'Move players, lock teams, post codes and push updates as the game unfolds.' },
+  { n: '04', label: 'Rules Presets', desc: 'Per-round rule configurations broadcast instantly to all players.' },
 ]
 
 function CommunityCard({ c, showRole }) {
-  const [hovered, setHovered] = useState(false)
   return (
-    <Link
-      to={`/c/${c.slug}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'block',
-        background: hovered ? 'var(--surface2)' : 'var(--surface)',
-        border: `1px solid ${hovered ? 'rgba(255,21,41,0.3)' : 'var(--border)'}`,
-        padding: '22px',
-        transition: 'all 0.2s',
-        boxShadow: hovered ? '0 0 24px rgba(255,21,41,0.08)' : 'none',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
+    <Link to={`/c/${c.slug}`} style={{ display: 'block', background: 'var(--ink)', borderTop: '2px solid var(--rule)', padding: '20px 22px', transition: 'border-color 0.15s' }}
+      onMouseEnter={e => e.currentTarget.style.borderTopColor = 'var(--red)'}
+      onMouseLeave={e => e.currentTarget.style.borderTopColor = 'var(--rule)'}
     >
-      {/* Corner accent */}
-      <div style={{
-        position: 'absolute', top: 0, right: 0,
-        width: 0, height: 0,
-        borderStyle: 'solid',
-        borderWidth: `0 ${hovered ? '28px' : '20px'} ${hovered ? '28px' : '20px'} 0`,
-        borderColor: `transparent ${hovered ? 'var(--red)' : 'var(--border2)'} transparent transparent`,
-        transition: 'all 0.2s',
-      }} />
-
-      {c.banner && (
-        <div style={{ height: 52, background: `url(${c.banner}) center/cover`, marginBottom: 14, border: '1px solid var(--border)' }} />
-      )}
-      <div style={{
-        fontFamily: "'Bebas Neue', cursive",
-        fontSize: '1.1rem', letterSpacing: '0.08em',
-        color: 'var(--text)', marginBottom: 6,
-      }}>{c.name}</div>
-      {showRole && (
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--red)' }}>
-          {c.role}
-        </div>
-      )}
-      {!showRole && c.description && (
-        <p style={{ fontSize: '0.76rem', color: 'var(--dim)', lineHeight: 1.7, fontWeight: 300 }}>
-          {c.description.slice(0, 80)}{c.description.length > 80 ? '…' : ''}
-        </p>
-      )}
+      {c.banner && <div style={{ height: 48, background: `url(${c.banner}) center/cover`, marginBottom: 14, opacity: 0.8 }} />}
+      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.05rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--white)', marginBottom: 5 }}>{c.name}</div>
+      {showRole && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--red)' }}>{c.role}</div>}
+      {!showRole && c.description && <p style={{ fontSize: '0.74rem', color: 'var(--muted)', lineHeight: 1.7 }}>{c.description.slice(0, 80)}{c.description.length > 80 ? '…' : ''}</p>}
     </Link>
-  )
-}
-
-function FeatureCard({ n, label, desc, delay }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: hovered ? 'var(--surface2)' : 'var(--surface)',
-        border: `1px solid ${hovered ? 'rgba(255,21,41,0.25)' : 'var(--border)'}`,
-        padding: '32px 28px',
-        transition: 'all 0.25s',
-        boxShadow: hovered ? '0 0 32px rgba(255,21,41,0.07), inset 0 1px 0 rgba(255,21,41,0.15)' : 'none',
-        animation: `fade-up 0.6s ease both`,
-        animationDelay: `${delay}ms`,
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div style={{
-        fontFamily: "'Bebas Neue', cursive",
-        fontSize: '3rem', lineHeight: 1,
-        color: hovered ? 'var(--red)' : 'var(--border2)',
-        marginBottom: 16,
-        transition: 'color 0.25s',
-        letterSpacing: '0.04em',
-      }}>{n}</div>
-      <div style={{
-        fontFamily: "'Bebas Neue', cursive",
-        fontSize: '1.3rem', letterSpacing: '0.1em',
-        color: 'var(--text)', marginBottom: 12,
-      }}>{label}</div>
-      <p style={{ fontSize: '0.78rem', color: 'var(--dim)', lineHeight: 1.8, fontWeight: 300 }}>{desc}</p>
-
-      {/* Bottom accent line */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0,
-        height: '2px',
-        width: hovered ? '100%' : '0%',
-        background: 'var(--red)',
-        transition: 'width 0.3s ease',
-        boxShadow: 'var(--glow-sm)',
-      }} />
-    </div>
   )
 }
 
@@ -112,152 +30,121 @@ export default function HomePage() {
   const [featured, setFeatured] = useState([])
 
   useEffect(() => {
-    api.get('/communities').then(r => {
-      setFeatured(r.data.filter(c => c.visibility === 'featured' || c.featured))
-    }).catch(() => {})
+    api.get('/communities').then(r => setFeatured(r.data.filter(c => c.visibility === 'featured' || c.featured))).catch(() => {})
   }, [])
 
   useEffect(() => {
-    if (user) {
-      api.get('/users/me/communities').then(r => {
-        setMyCommunities(r.data.map(m => ({ ...m.communities, role: m.role })).filter(Boolean))
-      }).catch(() => {})
-    }
+    if (user) api.get('/users/me/communities').then(r => setMyCommunities(r.data.map(m => ({ ...m.communities, role: m.role })).filter(Boolean))).catch(() => {})
   }, [user])
 
   return (
     <div>
       {/* ── Hero ── */}
-      <section style={{
-        minHeight: 'calc(100vh - 58px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '80px 24px',
-        position: 'relative', overflow: 'hidden',
-        borderBottom: '1px solid var(--border)',
-      }}>
-        {/* Grid background */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(255,21,41,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,21,41,0.04) 1px, transparent 1px)
-          `,
-          backgroundSize: '64px 64px',
-          maskImage: 'radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%)',
-        }} />
+      <section style={{ borderBottom: '1px solid var(--rule)', position: 'relative', overflow: 'hidden' }}>
 
-        {/* Radial glow */}
+        {/* Giant background type */}
         <div style={{
-          position: 'absolute', top: '45%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 800, height: 400,
-          background: 'radial-gradient(ellipse, rgba(255,21,41,0.08) 0%, transparent 65%)',
-          pointerEvents: 'none',
-        }} />
+          position: 'absolute', bottom: -20, left: -20,
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 900, fontStyle: 'italic',
+          fontSize: 'clamp(12rem, 25vw, 22rem)',
+          lineHeight: 0.85, letterSpacing: '-0.02em',
+          color: 'transparent',
+          WebkitTextStroke: '1px rgba(255,255,255,0.04)',
+          userSelect: 'none', pointerEvents: 'none',
+          whiteSpace: 'nowrap',
+        }}>RECOIL</div>
 
-        {/* Scan line */}
-        <div style={{
-          position: 'absolute', left: 0, right: 0, height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,21,41,0.4), transparent)',
-          animation: 'scan-line 6s linear infinite',
-          pointerEvents: 'none',
-        }} />
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 40px', display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 82px)', alignItems: 'center' }}>
 
-        <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, maxWidth: 760 }}>
-          {/* Eyebrow */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10,
-            marginBottom: 32, padding: '7px 18px',
-            border: '1px solid var(--border2)',
-            background: 'var(--surface)',
-            animation: 'fade-up 0.5s ease both',
-          }}>
-            <div style={{
-              width: 7, height: 7, borderRadius: '50%', background: 'var(--red)',
-              animation: 'dot-pulse 2s ease infinite',
-              flexShrink: 0,
-            }} />
-            <span style={{
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--dim)',
+          {/* Left */}
+          <div style={{ paddingTop: 80, paddingBottom: 80, paddingRight: 60, borderRight: '1px solid var(--rule)', animation: 'reveal 0.6s ease both' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span>RECOIL.GG</span>
+              <span style={{ color: 'var(--rule2)' }}>—</span>
+              <span style={{ color: 'var(--muted)' }}>Custom Lobbies</span>
+            </div>
+
+            <h1 style={{
+              fontFamily: "'Black Ops One', cursive",
+              fontSize: 'clamp(3.5rem, 7vw, 6.5rem)',
+              lineHeight: 0.9, letterSpacing: '0.03em',
+              color: 'var(--white)',
+              marginBottom: 32,
             }}>
-              Custom Game Platform
-            </span>
+              RECOIL<span style={{ color: 'var(--red)' }}>.</span>
+            </h1>
+
+            <p style={{ fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.9, marginBottom: 48, maxWidth: 400, fontWeight: 300 }}>
+              The custom lobby platform for serious Warzone communities. Build your group, run events, manage teams — all in one place.
+            </p>
+
+            <div style={{ display: 'flex', gap: 2 }}>
+              {!loading && (user
+                ? <Link to="/dashboard" className="btn-primary">Dashboard →</Link>
+                : <>
+                    <Link to="/login" className="btn-red">Get Started →</Link>
+                    <Link to="/login" className="btn-ghost" style={{ marginLeft: 10 }}>Sign In</Link>
+                  </>
+              )}
+            </div>
           </div>
 
-          {/* Main title */}
-          <h1 style={{
-            fontFamily: "'Black Ops One', cursive",
-            fontSize: 'clamp(4rem, 14vw, 9rem)',
-            lineHeight: 0.88,
-            letterSpacing: '0.04em',
-            color: 'var(--text)',
-            marginBottom: 32,
-            animation: 'fade-up 0.5s 0.1s ease both',
-          }}>
-            RECOIL<span style={{ color: 'var(--red)', textShadow: '0 0 40px rgba(255,21,41,0.5)' }}>.</span>
-          </h1>
+          {/* Right — stats / dossier */}
+          <div style={{ paddingTop: 80, paddingBottom: 80, paddingLeft: 60, animation: 'reveal 0.6s 0.15s ease both' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 32 }}>
+              Platform Overview
+            </div>
 
-          {/* Tagline */}
-          <p style={{
-            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-            color: 'var(--dim)', lineHeight: 1.8,
-            maxWidth: 440, margin: '0 auto 52px',
-            fontWeight: 300,
-            animation: 'fade-up 0.5s 0.2s ease both',
-          }}>
-            Run your own Warzone custom lobbies. Manage teams, track rounds, distribute join codes.
-          </p>
+            {[
+              { label: 'Platform', value: 'Warzone Custom Lobbies' },
+              { label: 'Access', value: 'Discord Auth' },
+              { label: 'Session Types', value: 'Multi-Round Events' },
+              { label: 'Team Control', value: 'Real-Time Management' },
+              { label: 'Status', value: 'Operational', red: true },
+            ].map(row => (
+              <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '14px 0', borderBottom: '1px solid var(--rule)', gap: 20 }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', flexShrink: 0 }}>
+                  {row.label}
+                </span>
+                <span style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700, fontSize: '1rem', letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  color: row.red ? 'var(--red)' : 'var(--white)',
+                  textAlign: 'right',
+                }}>
+                  {row.value}
+                </span>
+              </div>
+            ))}
 
-          {/* CTAs */}
-          <div style={{
-            display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap',
-            animation: 'fade-up 0.5s 0.3s ease both',
-          }}>
-            {!loading && (user
-              ? <Link to="/dashboard" className="btn-primary">Dashboard →</Link>
-              : <>
-                  <Link to="/login" className="btn-red">Get Started →</Link>
-                  <Link to="/login" className="btn-ghost">Sign In</Link>
-                </>
-            )}
-          </div>
-
-          {/* Scroll hint */}
-          <div style={{
-            marginTop: 72,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-            animation: 'fade-up 0.5s 0.5s ease both',
-          }}>
-            <div style={{ width: 1, height: 36, background: 'linear-gradient(to bottom, var(--red), transparent)' }} />
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--faint)' }}>Scroll</span>
+            {/* Terminal cursor effect */}
+            <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.62rem', color: 'var(--red)' }}>▶</span>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.62rem', color: 'var(--muted)' }}>Ready for deployment</span>
+              <span style={{ display: 'inline-block', width: 8, height: 14, background: 'var(--muted)', animation: 'blink 1s step-end infinite', marginLeft: 2 }} />
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── My Communities ── */}
       {user && myCommunities.length > 0 && (
-        <section style={{ padding: '72px 40px', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32 }}>
-              <div>
-                <div className="section-label">Your Communities</div>
-                <h2 className="section-h2" style={{ marginBottom: 0 }}>Jump Back In</h2>
+        <section style={{ borderBottom: '1px solid var(--rule)' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div style={{ padding: '0 40px', display: 'grid', gridTemplateColumns: '200px 1fr' }}>
+              <div style={{ borderRight: '1px solid var(--rule)', padding: '48px 0 48px 0', paddingRight: 32 }}>
+                <div className="section-label">Your</div>
+                <h2 className="section-h2" style={{ marginBottom: 0 }}>Communities</h2>
+                <Link to="/dashboard" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginTop: 20, transition: 'color 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = 'var(--red)'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}
+                >All →</Link>
               </div>
-              <Link to="/dashboard" style={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase',
-                color: 'var(--red)', transition: 'text-shadow 0.2s',
-              }}
-                onMouseEnter={e => e.currentTarget.style.textShadow = 'var(--glow-sm)'}
-                onMouseLeave={e => e.currentTarget.style.textShadow = 'none'}
-              >
-                View All →
-              </Link>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
-              {myCommunities.slice(0, 6).map(c => <CommunityCard key={c.id} c={c} showRole />)}
+              <div style={{ padding: '48px 0 48px 40px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10, alignContent: 'start' }}>
+                {myCommunities.slice(0, 6).map(c => <CommunityCard key={c.id} c={c} showRole />)}
+              </div>
             </div>
           </div>
         </section>
@@ -265,88 +152,72 @@ export default function HomePage() {
 
       {/* ── Featured ── */}
       {featured.length > 0 && (
-        <section style={{ padding: '72px 40px', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-            <div className="section-label">Discover</div>
-            <h2 className="section-h2">Featured Communities</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
-              {featured.map(c => <CommunityCard key={c.id} c={c} />)}
+        <section style={{ borderBottom: '1px solid var(--rule)' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div style={{ padding: '0 40px', display: 'grid', gridTemplateColumns: '200px 1fr' }}>
+              <div style={{ borderRight: '1px solid var(--rule)', padding: '48px 0', paddingRight: 32 }}>
+                <div className="section-label">Discover</div>
+                <h2 className="section-h2" style={{ marginBottom: 0 }}>Featured</h2>
+              </div>
+              <div style={{ padding: '48px 0 48px 40px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10, alignContent: 'start' }}>
+                {featured.map(c => <CommunityCard key={c.id} c={c} />)}
+              </div>
             </div>
           </div>
         </section>
       )}
 
       {/* ── Features ── */}
-      <section style={{ padding: '80px 40px', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-          {/* Header row */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 40, flexWrap: 'wrap', gap: 16 }}>
+      <section style={{ borderBottom: '1px solid var(--rule)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 40px' }}>
+          <div style={{ padding: '48px 0 32px', borderBottom: '1px solid var(--rule)', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
             <div>
               <div className="section-label">Platform</div>
               <h2 className="section-h2" style={{ marginBottom: 0 }}>Built for Custom Lobbies</h2>
             </div>
-            <div style={{ width: 120, height: 1, background: 'linear-gradient(to right, var(--red), transparent)' }} />
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.58rem', color: 'var(--muted)', letterSpacing: '0.1em' }}>04 FEATURES</div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
-            {FEATURES.map((f, i) => <FeatureCard key={f.n} {...f} delay={i * 80} />)}
-          </div>
-        </div>
-      </section>
 
-      {/* ── Stats bar ── */}
-      <section style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 40px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
-          {[
-            { v: 'Real-Time', l: 'Round Management' },
-            { v: 'Multi-Round', l: 'Session Support' },
-            { v: 'Discord', l: 'Auth Integration' },
-          ].map((s, i) => (
-            <div key={i} style={{
-              padding: '36px 24px', textAlign: 'center',
-              borderRight: i < 2 ? '1px solid var(--border)' : 'none',
-            }}>
-              <div style={{
-                fontFamily: "'Bebas Neue', cursive",
-                fontSize: '1.8rem', letterSpacing: '0.06em',
-                color: 'var(--text)', marginBottom: 4,
-              }}>{s.v}</div>
-              <div style={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: '0.58rem', letterSpacing: '0.14em', textTransform: 'uppercase',
-                color: 'var(--dim)',
-              }}>{s.l}</div>
-            </div>
-          ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            {FEATURES.map((f, i) => (
+              <div key={f.n}
+                style={{ padding: '36px 28px', borderRight: i < 3 ? '1px solid var(--rule)' : 'none', transition: 'background 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--ink)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '4rem', lineHeight: 1, color: 'var(--rule2)', marginBottom: 20, letterSpacing: '-0.01em' }}>{f.n}</div>
+                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.15rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--white)', marginBottom: 10 }}>{f.label}</div>
+                <p style={{ fontSize: '0.76rem', color: 'var(--muted)', lineHeight: 1.8, fontWeight: 300 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── CTA ── */}
       {!user && (
-        <section style={{ padding: '120px 40px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-          <div style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 600, height: 300,
-            background: 'radial-gradient(ellipse, rgba(255,21,41,0.06) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div className="section-label" style={{ justifyContent: 'center' }}>Ready?</div>
-            <h2 style={{
-              fontFamily: "'Bebas Neue', cursive",
-              fontSize: 'clamp(2.5rem, 6vw, 5rem)',
-              letterSpacing: '0.06em', lineHeight: 1,
-              color: 'var(--text)', marginBottom: 20,
-            }}>
-              Run Your Lobby.<br />
-              <span style={{ color: 'var(--red)', textShadow: '0 0 40px rgba(255,21,41,0.4)' }}>Own the Game.</span>
-            </h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--dim)', marginBottom: 44, lineHeight: 1.8, fontWeight: 300 }}>
-              Sign in with Discord and create your community in minutes.
-            </p>
-            <Link to="/login" className="btn-red" style={{ fontSize: '0.72rem', padding: '14px 36px' }}>
-              Sign In with Discord →
-            </Link>
+        <section style={{ borderBottom: '1px solid var(--rule)' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 40px', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'stretch' }}>
+            <div style={{ padding: '80px 60px 80px 0', borderRight: '1px solid var(--rule)' }}>
+              <div className="section-label">Join Up</div>
+              <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 'clamp(2.5rem, 5vw, 5rem)', textTransform: 'uppercase', lineHeight: 0.9, color: 'var(--white)', marginBottom: 28 }}>
+                Run Your<br />
+                <span style={{ color: 'var(--red)' }}>Lobby.</span>
+              </h2>
+              <p style={{ fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.9, maxWidth: 340, fontWeight: 300 }}>
+                Sign in with Discord and create your community in minutes.
+              </p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 60px' }}>
+              <div style={{ width: '100%', maxWidth: 300 }}>
+                <Link to="/login" className="btn-red" style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '0.7rem' }}>
+                  Sign In with Discord →
+                </Link>
+                <div style={{ marginTop: 16, fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.1em', color: 'var(--muted)', textAlign: 'center', lineHeight: 1.8 }}>
+                  No account required — Discord auth only.
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       )}
