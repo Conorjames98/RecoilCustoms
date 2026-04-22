@@ -16,13 +16,27 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let resolved = false
     function resolve() { if (!resolved) { resolved = true; setLoading(false) } }
+
+    // If OAuth tokens are in the URL, delay resolving loading until SIGNED_IN fires
+    const hasOAuthCallback = window.location.hash.includes('access_token')
+      || window.location.search.includes('code=')
+
     const timeout = setTimeout(resolve, 8000)
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'INITIAL_SESSION') { if (session?.user) setUser(session.user); resolve() }
-      else if (event === 'SIGNED_IN' && session?.user) { setUser(session.user); resolve() }
-      else if (event === 'TOKEN_REFRESHED' && session?.user) setUser(session.user)
-      else if (event === 'SIGNED_OUT') { setUser(null); resolve() }
+      if (event === 'INITIAL_SESSION') {
+        if (session?.user) { setUser(session.user); resolve() }
+        else if (!hasOAuthCallback) resolve()
+        // If OAuth callback, wait for SIGNED_IN before resolving
+      } else if (event === 'SIGNED_IN' && session?.user) {
+        setUser(session.user)
+        resolve()
+      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+        setUser(session.user)
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null)
+        resolve()
+      }
     })
 
     return () => { clearTimeout(timeout); subscription.unsubscribe() }
@@ -31,7 +45,7 @@ export function AuthProvider({ children }) {
   async function signInWithDiscord() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'discord',
-      options: { redirectTo: `${window.location.origin}/auth/callback` }
+      options: { redirectTo: window.location.origin }
     })
     if (error) throw error
     return data
