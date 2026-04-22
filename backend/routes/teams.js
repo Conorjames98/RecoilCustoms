@@ -33,7 +33,7 @@ router.post('/:id/join', requireAuth, async (req, res) => {
 
   const { data, error } = await supabase
     .from('team_members')
-    .insert({ team_id: req.params.id, user_id: req.user.id, slot_number: slot })
+    .insert({ team_id: req.params.id, user_id: req.user.id, slot_number: slot, is_captain: slot === 1 })
     .select('*, profiles(id, username, avatar)').single();
   if (error) return res.status(400).json({ error: error.message });
 
@@ -49,6 +49,22 @@ router.post('/:id/join', requireAuth, async (req, res) => {
 router.post('/:id/leave', requireAuth, async (req, res) => {
   await supabase.from('team_members').delete().eq('team_id', req.params.id).eq('user_id', req.user.id);
   res.json({ success: true });
+});
+
+// PATCH /api/teams/:id/name — rename team (captain only)
+router.patch('/:id/name', requireAuth, async (req, res) => {
+  const { name } = req.body;
+  if (!name?.trim()) return res.status(400).json({ error: 'name required' });
+  const { data: member } = await supabase
+    .from('team_members')
+    .select('is_captain')
+    .eq('team_id', req.params.id)
+    .eq('user_id', req.user.id)
+    .single();
+  if (!member?.is_captain) return res.status(403).json({ error: 'Only the team captain can rename the team' });
+  const { data, error } = await supabase.from('teams').update({ name: name.trim() }).eq('id', req.params.id).select().single();
+  if (error) return res.status(400).json({ error: error.message });
+  res.json(data);
 });
 
 // POST /api/teams/:id/lock — lock/unlock (owner/mod only)
