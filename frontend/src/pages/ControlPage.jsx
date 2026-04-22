@@ -4,7 +4,7 @@ import api from '../lib/api'
 
 const SESSION_STATUSES = ['draft','open','filling','ready','code_live','starting','in_progress','ended','archived']
 const ROUND_STATUSES   = ['draft','open','code_live','starting','in_progress','ended']
-const PRESETS = ['Anything Goes','Knives Only','Snipers Only','Shotguns Only','Pistols Only','No Killstreaks','Ground Loot Only','Custom']
+const PRESETS = ['Anything Goes','Knives Only','Snipers Only','Pistols Only','Shotguns Only','No Vehicles','No Lethals','No Killstreaks','No Loadouts','Custom Loadouts Allowed']
 
 export default function ControlPage() {
   const { slug, sessionId } = useParams()
@@ -121,17 +121,21 @@ export default function ControlPage() {
                     {rNext && <button onClick={() => setRoundStatus(r.id, rNext)} disabled={busy[`r${r.id}`]} className="btn-red" style={{ fontSize: '0.55rem', padding: '4px 10px' }}>{rNext.replace('_', ' ')} →</button>}
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                   <div>
                     <label style={{ fontSize: '0.55rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 5, display: 'block' }}>Join Code</label>
-                    <input defaultValue={r.join_code || ''} onBlur={e => updateRound(r.id, { join_code: e.target.value })} placeholder="Set code..." style={{ fontSize: '0.8rem', letterSpacing: '0.1em', padding: '7px 12px' }} />
+                    <input key={r.id + r.join_code} defaultValue={r.join_code || ''} onBlur={e => updateRound(r.id, { join_code: e.target.value })} placeholder="Set code..." style={{ fontSize: '0.8rem', letterSpacing: '0.1em', padding: '7px 12px' }} />
                   </div>
                   <div>
                     <label style={{ fontSize: '0.55rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 5, display: 'block' }}>Rules Preset</label>
-                    <select defaultValue={(r.rules_presets?.[0]) || 'Anything Goes'} onChange={e => updateRound(r.id, { rules_presets: [e.target.value] })} style={{ fontSize: '0.7rem', padding: '7px 12px' }}>
+                    <select key={r.id} defaultValue={(r.rules_presets?.[0]) || 'Anything Goes'} onChange={e => updateRound(r.id, { rules_presets: [e.target.value] })} style={{ fontSize: '0.7rem', padding: '7px 12px' }}>
                       {PRESETS.map(p => <option key={p}>{p}</option>)}
                     </select>
                   </div>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.55rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 5, display: 'block' }}>Custom Notes</label>
+                  <textarea key={r.id + 'notes'} defaultValue={r.custom_rules_text || ''} onBlur={e => updateRound(r.id, { custom_rules_text: e.target.value })} placeholder='e.g. "No camping fire station"' rows={2} style={{ fontSize: '0.7rem', padding: '7px 12px', resize: 'vertical' }} />
                 </div>
               </div>
             )

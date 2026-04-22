@@ -50,10 +50,11 @@ export default function SessionPage() {
   const teams = session.teams || []
   const rounds = session.rounds || []
 
-  // Check if current user is in any team
   const myTeam = myDbId ? teams.find(t => (t.team_members || []).some(m => m.users?.id === myDbId)) : null
   const isMod = session?.membership?.role === 'owner' || session?.membership?.role === 'moderator'
-  const currentRound = rounds.find(r => ['open','code_live','starting','in_progress'].includes(r.status))
+  const currentRoundIdx = rounds.findIndex(r => ['open','code_live','starting','in_progress'].includes(r.status))
+  const currentRound = currentRoundIdx >= 0 ? rounds[currentRoundIdx] : null
+  const nextRound = currentRoundIdx >= 0 ? rounds[currentRoundIdx + 1] : rounds.find(r => r.status === 'draft')
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 24px' }}>
@@ -131,19 +132,44 @@ export default function SessionPage() {
         </div>
 
         {/* Rounds sidebar */}
-        <div>
-          <div style={{ fontSize: '0.58rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 16 }}>Rounds</div>
-          <div style={{ display: 'grid', gap: 1, background: 'var(--border)', border: '1px solid var(--border)' }}>
-            {rounds.map(r => (
-              <div key={r.id} style={{ background: 'var(--bg)', padding: '16px 20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: '0.8rem', color: 'var(--white)', letterSpacing: '0.1em' }}>Round {r.round_number}</div>
-                  <span className={`status-badge status-${r.status}`} style={{ fontSize: '0.5rem', padding: '2px 8px' }}>{r.status.replace('_', ' ')}</span>
-                </div>
-                {r.rules_presets?.length > 0 && <div style={{ fontSize: '0.6rem', color: 'var(--muted)', marginBottom: 4 }}>{r.rules_presets.join(', ')}</div>}
-                {r.join_code && <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: '0.85rem', color: 'var(--red2)', letterSpacing: '0.2em' }}>{r.join_code}</div>}
+        <div style={{ display: 'grid', gap: 16 }}>
+          {/* Next Round Preview */}
+          {nextRound && (
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--olive)', padding: 18 }}>
+              <div style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--khaki)', marginBottom: 10 }}>Up Next</div>
+              <div style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: '0.9rem', color: 'var(--white)', letterSpacing: '0.1em', marginBottom: 8 }}>
+                {nextRound.title || `Round ${nextRound.round_number}`}
               </div>
-            ))}
+              {nextRound.map && <div style={{ fontSize: '0.6rem', color: 'var(--muted)', marginBottom: 6 }}>{nextRound.map}</div>}
+              {nextRound.rules_presets?.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
+                  {nextRound.rules_presets.map(p => (
+                    <span key={p} style={{ fontSize: '0.55rem', letterSpacing: '0.12em', color: 'var(--khaki)', border: '1px solid var(--olive)', padding: '2px 8px' }}>{p}</span>
+                  ))}
+                </div>
+              )}
+              {nextRound.custom_rules_text && (
+                <p style={{ fontSize: '0.62rem', color: 'var(--dirty)', lineHeight: 1.7, fontStyle: 'italic' }}>"{nextRound.custom_rules_text}"</p>
+              )}
+            </div>
+          )}
+
+          <div>
+            <div style={{ fontSize: '0.58rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>All Rounds</div>
+            <div style={{ display: 'grid', gap: 1, background: 'var(--border)', border: '1px solid var(--border)' }}>
+              {rounds.map(r => (
+                <div key={r.id} style={{ background: r.status === 'in_progress' ? 'rgba(180,20,20,0.06)' : 'var(--bg)', padding: '14px 18px', borderLeft: r.status === 'in_progress' ? '2px solid var(--red2)' : '2px solid transparent' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: '0.78rem', color: 'var(--white)', letterSpacing: '0.1em' }}>{r.title || `Round ${r.round_number}`}</div>
+                    <span className={`status-badge status-${r.status}`} style={{ fontSize: '0.48rem', padding: '2px 7px' }}>{r.status.replace('_', ' ')}</span>
+                  </div>
+                  {r.map && <div style={{ fontSize: '0.58rem', color: 'var(--muted)', marginBottom: 3 }}>{r.map}</div>}
+                  {r.rules_presets?.length > 0 && <div style={{ fontSize: '0.58rem', color: 'var(--khaki)' }}>{r.rules_presets.join(' · ')}</div>}
+                  {r.custom_rules_text && <div style={{ fontSize: '0.58rem', color: 'var(--dirty)', marginTop: 3, fontStyle: 'italic' }}>"{r.custom_rules_text}"</div>}
+                  {r.join_code && <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: '0.9rem', color: 'var(--red2)', letterSpacing: '0.2em', marginTop: 6 }}>{r.join_code}</div>}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

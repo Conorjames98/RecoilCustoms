@@ -12,7 +12,7 @@ export default function ManagePage() {
   const [announcements, setAnnouncements] = useState([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('overview')
-  const [form, setForm] = useState({ name: '', description: '' })
+  const [form, setForm] = useState({ name: '', description: '', rules: '', visibility: 'private', discord_url: '', twitter_url: '' })
   const [annForm, setAnnForm] = useState({ title: '', body: '' })
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
@@ -30,7 +30,7 @@ export default function ManagePage() {
         return
       }
       setCommunity(comm)
-      setForm({ name: comm.name, description: comm.description || '' })
+      setForm({ name: comm.name, description: comm.description || '', rules: comm.rules || '', visibility: comm.visibility || 'private', discord_url: comm.discord_url || '', twitter_url: comm.twitter_url || '' })
       setMembers(m.data.map(m => ({ ...m.users, role: m.role })))
       setAnnouncements(a.data)
     }).finally(() => setLoading(false))
@@ -106,7 +106,29 @@ export default function ManagePage() {
             </div>
             <div className="form-group">
               <label>Description</label>
-              <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={4} />
+              <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} />
+            </div>
+            <div className="form-group">
+              <label>Community Rules</label>
+              <textarea value={form.rules} onChange={e => setForm(f => ({ ...f, rules: e.target.value }))} rows={4} placeholder="e.g. No teaming, respect all players..." />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="form-group">
+                <label>Discord URL</label>
+                <input value={form.discord_url} onChange={e => setForm(f => ({ ...f, discord_url: e.target.value }))} placeholder="https://discord.gg/..." />
+              </div>
+              <div className="form-group">
+                <label>Twitter URL</label>
+                <input value={form.twitter_url} onChange={e => setForm(f => ({ ...f, twitter_url: e.target.value }))} placeholder="https://twitter.com/..." />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Visibility</label>
+              <select value={form.visibility} onChange={e => setForm(f => ({ ...f, visibility: e.target.value }))}>
+                <option value="private">Private — invite only</option>
+                <option value="public">Public — searchable</option>
+                <option value="featured">Featured eligible</option>
+              </select>
             </div>
             {msg && <p className="success-msg" style={{ marginBottom: 12 }}>{msg}</p>}
             {error && <p className="error-msg" style={{ marginBottom: 12 }}>{error}</p>}
