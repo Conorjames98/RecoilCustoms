@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const requireAuth = require('../middleware/auth');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 async function getSessionAndRole(teamId, userId) {
   const { data: team } = await supabase.from('teams').select('session_id, locked').eq('id', teamId).single();
