@@ -47,7 +47,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
 router.get('/:slug/sessions', async (req, res) => {
   const { data: community } = await supabase.from('communities').select('id').eq('slug', req.params.slug).single();
   if (!community) return res.status(404).json({ error: 'Not found' });
-  const { data, error } = await supabase.from('sessions').select('id, title, status, max_players, created_at').eq('community_id', community.id).order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('sessions').select('id, title, status, scheduled_at, created_at').eq('community_id', community.id).order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
