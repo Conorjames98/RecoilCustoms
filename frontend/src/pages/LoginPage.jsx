@@ -19,7 +19,7 @@ export default function LoginPage() {
   async function handleDiscord() {
     setBusy(true); setError('')
     try { await signInWithDiscord() }
-    catch { setError('Failed to connect to Discord.'); setBusy(false) }
+    catch(err) { setError(err?.message || 'Failed to connect to Discord.'); setBusy(false) }
   }
 
   return (
