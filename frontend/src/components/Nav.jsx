@@ -18,16 +18,19 @@ export default function Nav() {
           <>
             <Link to="/dashboard" className="nav-link">Dashboard</Link>
             <Link to="/create" className="nav-link">New Community</Link>
-            <div style={{ width: 1, height: 20, background: 'var(--border2)', margin: '0 6px' }} />
+            <div className="nav-sep" />
             {avatar && (
-              <img src={avatar} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border2)' }} />
+              <div style={{ position: 'relative', marginRight: 4 }}>
+                <img src={avatar} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border2)', display: 'block' }} />
+                <div style={{ position: 'absolute', bottom: 1, right: 1, width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', border: '1.5px solid var(--bg)' }} />
+              </div>
             )}
-            <button onClick={handleSignOut} className="btn-ghost" style={{ fontSize: '0.65rem', padding: '6px 14px' }}>
+            <button onClick={handleSignOut} className="btn-ghost" style={{ fontSize: '0.6rem', padding: '7px 14px' }}>
               Sign Out
             </button>
           </>
         ) : (
-          <Link to="/login" className="btn-red" style={{ fontSize: '0.65rem', padding: '8px 18px' }}>
+          <Link to="/login" className="btn-red" style={{ fontSize: '0.62rem', padding: '8px 20px' }}>
             Login
           </Link>
         ))}
