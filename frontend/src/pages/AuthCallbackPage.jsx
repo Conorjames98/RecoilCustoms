@@ -6,19 +6,24 @@ export default function AuthCallbackPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/', { replace: true })
-      } else {
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-          if (session) {
-            subscription.unsubscribe()
+    const code = new URLSearchParams(window.location.search).get('code')
+
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code)
+        .then(({ error }) => {
+          if (error) {
+            console.error('Auth exchange failed:', error.message)
+            navigate('/login', { replace: true })
+          } else {
             navigate('/', { replace: true })
           }
         })
-        setTimeout(() => { subscription.unsubscribe(); navigate('/login', { replace: true }) }, 10000)
-      }
-    })
+    } else {
+      // Fallback: no code param, check for existing session
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        navigate(session ? '/' : '/login', { replace: true })
+      })
+    }
   }, [])
 
   return (
