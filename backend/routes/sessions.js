@@ -21,7 +21,8 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/sessions/:id — full session with rounds and teams
-router.get('/:id', async (req, res) => {
+const { optionalAuth } = require('../middleware/auth');
+router.get('/:id', optionalAuth, async (req, res) => {
   const { data: session, error } = await supabase
     .from('sessions')
     .select('*, profiles!sessions_created_by_fkey(username, avatar)')
@@ -34,7 +35,13 @@ router.get('/:id', async (req, res) => {
     supabase.from('teams').select('*, team_members(slot_number, is_captain, profiles(id, username, avatar, discord_id))').eq('session_id', req.params.id).order('team_number')
   ]);
 
-  res.json({ ...session, rounds: rounds || [], teams: teams || [] });
+  let membership = null;
+  if (req.user) {
+    const { data: m } = await supabase.from('community_members').select('role').eq('community_id', session.community_id).eq('user_id', req.user.id).single();
+    membership = m || null;
+  }
+
+  res.json({ ...session, rounds: rounds || [], teams: teams || [], membership });
 });
 
 // POST /api/sessions — create session + initial rounds + teams
