@@ -42,6 +42,8 @@ export default function ManagePage() {
   }, [slug])
 
   async function uploadImage(file, field) {
+    const { data: { session } } = await supabase.auth.getSession()
+    console.log('session:', session)
     setUploading(u => ({ ...u, [field]: true }))
     const ext = file.name.split('.').pop()
     const path = `${slug}-${field}-${Date.now()}.${ext}`
