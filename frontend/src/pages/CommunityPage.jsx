@@ -166,31 +166,31 @@ export default function CommunityPage() {
       {/* Sticky Nav */}
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300,
-        height: 98, background: 'rgba(8,8,8,0.92)',
+        height: 98, background: 'rgba(180,20,20,0.95)',
         backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
         display: 'flex', alignItems: 'flex-end', padding: '0 24px 14px',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between', gap: 16,
       }}>
         <button onClick={() => navigate(-1)} style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', gap: 8,
-          color: 'rgba(255,255,255,0.5)',
-          fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.62rem',
+          display: 'flex', alignItems: 'center', gap: 10,
+          color: 'rgba(255,255,255,0.85)',
+          fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem',
           letterSpacing: '0.18em', textTransform: 'uppercase',
           transition: 'color 0.2s',
         }}
           onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
           Back
         </button>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {isOwnerOrMod && (
             <>
-              <Link to={`/c/${slug}/manage`} className="btn-ghost" style={{ fontSize: '0.56rem', padding: '5px 12px', letterSpacing: '0.12em' }}>Manage</Link>
-              <Link to={`/c/${slug}/sessions/new`} className="btn-red" style={{ fontSize: '0.56rem', padding: '6px 14px', letterSpacing: '0.12em' }}>+ Session</Link>
+              <Link to={`/c/${slug}/manage`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.12em', padding: '5px 12px', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', background: 'none', textTransform: 'uppercase' }}>Manage</Link>
+              <Link to={`/c/${slug}/sessions/new`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.12em', padding: '6px 14px', border: '1px solid #fff', color: '#b41414', background: '#fff', textTransform: 'uppercase', fontWeight: 700 }}>+ Session</Link>
             </>
           )}
           {user && !membership && (
