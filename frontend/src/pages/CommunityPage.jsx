@@ -79,7 +79,7 @@ export default function CommunityPage() {
   return (
     <div>
       {/* Sticky top bar */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300, height: 48, background: 'rgba(8,8,8,0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--rule)', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between' }}>
+      <div style={{ position: 'fixed', top: 50, left: 0, right: 0, zIndex: 300, height: 48, background: 'rgba(8,8,8,0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--rule)', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between' }}>
         <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', textTransform: 'uppercase', transition: 'color 0.15s' }}
           onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'}
           onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}>
