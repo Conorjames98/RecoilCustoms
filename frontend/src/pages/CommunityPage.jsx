@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
 
@@ -24,6 +24,7 @@ function Countdown({ scheduledAt }) {
 export default function CommunityPage() {
   const { slug } = useParams()
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [community, setCommunity] = useState(null)
   const [sessions, setSessions] = useState([])
   const [announcements, setAnnouncements] = useState([])
@@ -77,6 +78,19 @@ export default function CommunityPage() {
 
   return (
     <div>
+      {/* Sticky top bar */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300, height: 48, background: 'rgba(8,8,8,0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--rule)', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between' }}>
+        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', textTransform: 'uppercase', transition: 'color 0.15s' }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}>
+          ← Back
+        </button>
+        <Link to="/" style={{ fontFamily: "'Black Ops One', cursive", fontSize: '1.1rem', letterSpacing: '0.08em', color: 'var(--white)' }}>
+          Recoil<span style={{ color: 'var(--red)' }}>.</span>
+        </Link>
+        <div style={{ width: 60 }} />
+      </div>
+      <div style={{ height: 48 }} />
       {/* Banner */}
       {community.banner && (
         <>
