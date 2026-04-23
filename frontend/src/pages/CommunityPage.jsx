@@ -87,12 +87,8 @@ export default function CommunityPage() {
         {/* Header */}
         <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: 32, marginBottom: 40, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            {community.logo && <img src={community.logo} alt="" style={{ width: 64, height: 64, objectFit: 'cover', border: '2px solid var(--border2)' }} />}
+            {community.logo && <img src={community.logo} alt="" style={{ width: 64, height: 64, objectFit: 'cover', border: '2px solid var(--border2)', borderRadius: '50%' }} />}
             <div>
-              <div style={{ fontSize: '0.58rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red2)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 18, height: 1, background: 'var(--red2)', display: 'inline-block' }} />
-                Community
-              </div>
               <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(1.8rem, 5vw, 3rem)', color: 'var(--white)', letterSpacing: '0.04em', marginBottom: 6 }}>
                 {community.name}
               </h1>
