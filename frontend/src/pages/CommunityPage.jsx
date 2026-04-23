@@ -1,25 +1,70 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
 
 function Countdown({ scheduledAt }) {
-  const [label, setLabel] = useState('')
+  const [parts, setParts] = useState({ d: 0, h: 0, m: 0, s: 0, done: false })
   useEffect(() => {
     function calc() {
       const diff = new Date(scheduledAt) - Date.now()
-      if (diff <= 0) return setLabel('Starting now')
-      const d = Math.floor(diff / 86400000)
-      const h = Math.floor((diff % 86400000) / 3600000)
-      const m = Math.floor((diff % 3600000) / 60000)
-      const s = Math.floor((diff % 60000) / 1000)
-      setLabel(d > 0 ? `${d}d ${h}h ${m}m` : h > 0 ? `${h}h ${m}m` : m > 0 ? `${m}m ${s}s` : `${s}s`)
+      if (diff <= 0) return setParts({ done: true })
+      setParts({
+        d: Math.floor(diff / 86400000),
+        h: Math.floor((diff % 86400000) / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+        done: false,
+      })
     }
     calc()
     const id = setInterval(calc, 1000)
     return () => clearInterval(id)
   }, [scheduledAt])
-  return <span>{label}</span>
+
+  if (parts.done) return <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: 'var(--red)', fontSize: '0.8rem', letterSpacing: '0.2em' }}>STARTING NOW</span>
+
+  const show = parts.d > 0
+    ? [{ v: parts.d, l: 'DAYS' }, { v: parts.h, l: 'HRS' }, { v: parts.m, l: 'MIN' }]
+    : parts.h > 0
+    ? [{ v: parts.h, l: 'HRS' }, { v: parts.m, l: 'MIN' }, { v: parts.s, l: 'SEC' }]
+    : [{ v: parts.m, l: 'MIN' }, { v: parts.s, l: 'SEC' }]
+
+  return (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+      {show.map(({ v, l }, i) => (
+        <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              fontFamily: "'Black Ops One', cursive",
+              fontSize: 'clamp(1.4rem, 3vw, 2rem)',
+              color: '#fff',
+              lineHeight: 1,
+              textShadow: '0 0 20px rgba(220,38,38,0.6)',
+              minWidth: 48,
+              textAlign: 'center',
+            }}>{String(v).padStart(2, '0')}</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.4rem', letterSpacing: '0.22em', color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{l}</div>
+          </div>
+          {i < show.length - 1 && (
+            <div style={{ fontFamily: "'Black Ops One', cursive", fontSize: '1.4rem', color: 'var(--red)', opacity: 0.7, marginBottom: 8 }}>:</div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PulsingDot() {
+  return (
+    <span style={{ position: 'relative', display: 'inline-block', width: 8, height: 8 }}>
+      <span style={{
+        position: 'absolute', inset: 0, borderRadius: '50%', background: '#fff',
+        animation: 'ping 1.2s cubic-bezier(0,0,0.2,1) infinite',
+      }} />
+      <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#fff' }} />
+    </span>
+  )
 }
 
 export default function CommunityPage() {
@@ -76,214 +121,481 @@ export default function CommunityPage() {
   const upcomingSession = sessions.find(s => s.status === 'open' || s.status === 'filling' || s.status === 'ready')
   const mods = members.filter(m => m.role === 'owner' || m.role === 'moderator')
   const pastSessions = sessions.filter(s => s.status === 'ended' || s.status === 'archived')
+  const activeSessions = sessions.filter(s => !['ended','archived'].includes(s.status))
 
   return (
-    <div>
-      {/* Sticky top bar */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300, height: 98, background: '#080808', borderBottom: '1px solid var(--rule)', display: 'flex', alignItems: 'flex-end', padding: '0 20px 0 20px', justifyContent: 'flex-start' }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, color: 'var(--white)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', transition: 'color 0.15s', marginBottom: 12 }}
+    <div style={{ minHeight: '100vh', background: 'var(--bg, #080808)' }}>
+      <style>{`
+        @keyframes ping {
+          75%, 100% { transform: scale(2); opacity: 0; }
+        }
+        @keyframes scanline {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+        @keyframes flicker {
+          0%, 100% { opacity: 1; }
+          92% { opacity: 1; }
+          93% { opacity: 0.85; }
+          94% { opacity: 1; }
+          96% { opacity: 0.9; }
+          97% { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes glowPulse {
+          0%, 100% { box-shadow: 0 0 12px rgba(220,38,38,0.3), inset 0 0 12px rgba(220,38,38,0.05); }
+          50% { box-shadow: 0 0 28px rgba(220,38,38,0.6), inset 0 0 24px rgba(220,38,38,0.1); }
+        }
+        .community-session-card:hover .session-title { color: #fff !important; }
+        .community-session-card:hover { background: #141416 !important; }
+        .community-session-card:hover .session-arrow { opacity: 1 !important; transform: translateX(0) !important; }
+        .announcement-card { transition: border-color 0.2s; }
+        .announcement-card:hover { border-color: rgba(220,38,38,0.3) !important; }
+        .past-session-row:hover { opacity: 1 !important; background: #111 !important; }
+        .staff-card:hover { background: #111 !important; border-color: rgba(220,38,38,0.25) !important; }
+        .live-banner { animation: glowPulse 2s ease-in-out infinite; }
+        .community-hero-title { animation: flicker 8s infinite; }
+        .fade-in { animation: slideUp 0.5s ease forwards; }
+        .fade-in-2 { animation: slideUp 0.5s 0.1s ease both; }
+        .fade-in-3 { animation: slideUp 0.5s 0.2s ease both; }
+      `}</style>
+
+      {/* Sticky Nav */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300,
+        height: 64, background: 'rgba(8,8,8,0.92)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex', alignItems: 'center', padding: '0 24px',
+        justifyContent: 'space-between',
+      }}>
+        <button onClick={() => navigate(-1)} style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 8,
+          color: 'rgba(255,255,255,0.5)',
+          fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.62rem',
+          letterSpacing: '0.18em', textTransform: 'uppercase',
+          transition: 'color 0.2s',
+        }}
           onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--white)'}>
-          ← Back
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
         </button>
-        <div style={{ width: 60 }} />
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {isOwnerOrMod && (
+            <>
+              <Link to={`/c/${slug}/manage`} className="btn-ghost" style={{ fontSize: '0.56rem', padding: '5px 12px', letterSpacing: '0.12em' }}>Manage</Link>
+              <Link to={`/c/${slug}/sessions/new`} className="btn-red" style={{ fontSize: '0.56rem', padding: '6px 14px', letterSpacing: '0.12em' }}>+ Session</Link>
+            </>
+          )}
+          {user && !membership && (
+            <button onClick={handleJoin} disabled={joining} className="btn-primary" style={{ fontSize: '0.56rem', padding: '6px 14px' }}>
+              {joining ? 'Joining...' : 'Join'}
+            </button>
+          )}
+          {membership && membership.role !== 'owner' && (
+            <button onClick={handleLeave} className="btn-ghost" style={{ fontSize: '0.56rem', padding: '5px 12px' }}>Leave</button>
+          )}
+        </div>
       </div>
-      <div style={{ height: 98 }} />
-      {/* Banner */}
-      {community.banner && (
-        <>
-          <div style={{ height: 200, background: `url(${community.banner}) center/cover` }} />
-          <div style={{ height: 3, background: 'var(--red)' }} />
-        </>
+      <div style={{ height: 64 }} />
+
+      {/* Hero */}
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+        {community.banner ? (
+          <div style={{ height: 320, position: 'relative' }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: `url(${community.banner}) center/cover`,
+              filter: 'brightness(0.45) saturate(0.8)',
+            }} />
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(to bottom, transparent 30%, #080808 100%)',
+            }} />
+            {/* Scanline overlay */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)',
+              pointerEvents: 'none',
+            }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 32px 36px' }}>
+              <HeroContent community={community} membership={membership} members={members} />
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            padding: '48px 32px 36px',
+            background: 'linear-gradient(135deg, #0e0e10 0%, #080808 60%)',
+            borderBottom: '1px solid rgba(255,255,255,0.04)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            {/* Grid bg */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+              backgroundSize: '48px 48px',
+              pointerEvents: 'none',
+            }} />
+            <div style={{ position: 'absolute', top: 0, right: 0, width: 400, height: 400, background: 'radial-gradient(circle, rgba(220,38,38,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <HeroContent community={community} membership={membership} members={members} />
+          </div>
+        )}
+      </div>
+
+      {membership && (
+        <div style={{ padding: '0 32px', marginTop: -8, marginBottom: 4 }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.52rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>
+            Member ·{' '}
+            <span style={{ color: membership.role === 'owner' ? 'var(--red2, #dc2626)' : 'rgba(255,255,255,0.5)' }}>
+              {membership.role}
+            </span>
+          </span>
+        </div>
+      )}
+      {error && <p className="error-msg" style={{ margin: '0 32px 16px' }}>{error}</p>}
+
+      {/* Live Banner */}
+      {liveSession && (
+        <div style={{ padding: '20px 32px 0' }} className="fade-in">
+          <Link to={`/c/${slug}/sessions/${liveSession.id}`} className="live-banner" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            background: 'rgba(220,38,38,0.12)',
+            border: '1px solid rgba(220,38,38,0.5)',
+            padding: '20px 28px',
+            flexWrap: 'wrap', gap: 12,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <PulsingDot />
+              <div>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Live Now</div>
+                <div style={{ fontFamily: "'Black Ops One', cursive", fontSize: '1.1rem', color: '#fff', letterSpacing: '0.06em' }}>{liveSession.title}</div>
+              </div>
+            </div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.2em', color: '#fff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+              Enter Session
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </Link>
+        </div>
       )}
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 24px' }}>
-
-        {/* Header */}
-        <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: 24, marginBottom: 40, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
-          <div>
-            <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(1.8rem, 5vw, 3rem)', color: 'var(--white)', letterSpacing: '0.04em', marginBottom: 6 }}>
-                {community.name}
-              </h1>
-              {community.description && (
-                <p style={{ fontSize: '0.7rem', color: 'var(--khaki)', lineHeight: 1.8, maxWidth: 600 }}>{community.description}</p>
-              )}
-              <div style={{ display: 'flex', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
-                {community.discord_url && <a href={community.discord_url} target="_blank" rel="noreferrer" style={{ fontSize: '0.58rem', letterSpacing: '0.14em', color: '#5865F2' }}>Discord ↗</a>}
-                {community.twitter_url && <a href={community.twitter_url} target="_blank" rel="noreferrer" style={{ fontSize: '0.58rem', letterSpacing: '0.14em', color: 'var(--khaki)' }}>Twitter ↗</a>}
+      {/* Upcoming Countdown */}
+      {!liveSession && upcomingSession?.scheduled_at && (
+        <div style={{ padding: '20px 32px 0' }} className="fade-in">
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.07)',
+            padding: '20px 28px',
+            flexWrap: 'wrap', gap: 16,
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, width: 3, height: '100%', background: 'var(--red, #dc2626)' }} />
+            <div style={{ paddingLeft: 8 }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>Next Session</div>
+              <div style={{ fontFamily: "'Black Ops One', cursive", fontSize: '1rem', color: 'var(--white)', letterSpacing: '0.06em' }}>{upcomingSession.title}</div>
             </div>
-          </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            {isOwnerOrMod && (
-              <>
-                <Link to={`/c/${slug}/manage`} className="btn-ghost" style={{ fontSize: '0.58rem', padding: '6px 14px' }}>Manage</Link>
-                <Link to={`/c/${slug}/sessions/new`} className="btn-red" style={{ fontSize: '0.58rem', padding: '8px 16px' }}>+ Session</Link>
-              </>
-            )}
-            {user && !membership && (
-              <button onClick={handleJoin} disabled={joining} className="btn-primary" style={{ fontSize: '0.58rem', padding: '8px 16px' }}>
-                {joining ? 'Joining...' : 'Join Community'}
-              </button>
-            )}
-            {membership && membership.role !== 'owner' && (
-              <button onClick={handleLeave} className="btn-ghost" style={{ fontSize: '0.58rem', padding: '6px 14px' }}>Leave</button>
-            )}
+            <Countdown scheduledAt={upcomingSession.scheduled_at} />
           </div>
         </div>
+      )}
 
-        {membership && (
-          <div style={{ marginBottom: 24, fontSize: '0.58rem', letterSpacing: '0.16em', color: 'var(--muted)' }}>
-            Member · <span style={{ color: membership.role === 'owner' ? 'var(--red2)' : 'var(--khaki)', textTransform: 'uppercase' }}>{membership.role}</span>
-          </div>
-        )}
-        {error && <p className="error-msg" style={{ marginBottom: 16 }}>{error}</p>}
+      {/* Main Grid */}
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 32px 80px', display: 'grid', gridTemplateColumns: '1fr 320px', gap: 28, alignItems: 'start' }}
+        className="community-main-grid">
+        <style>{`
+          @media (max-width: 768px) {
+            .community-main-grid { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
 
-        {/* Live / Upcoming banner */}
-        {liveSession && (
-          <Link to={`/c/${slug}/sessions/${liveSession.id}`} style={{ background: 'var(--red)', border: '1px solid var(--red2)', padding: '18px 24px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <div style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>● Live Now</div>
-              <div style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: '1rem', color: '#fff', letterSpacing: '0.1em' }}>{liveSession.title}</div>
-            </div>
-            <span style={{ fontSize: '0.6rem', letterSpacing: '0.16em', color: '#fff', textTransform: 'uppercase' }}>Join →</span>
-          </Link>
-        )}
+        {/* Left column */}
+        <div style={{ display: 'grid', gap: 28 }}>
 
-        {!liveSession && upcomingSession?.scheduled_at && (
-          <div style={{ background: 'var(--surface)', border: '1px solid var(--border2)', padding: '18px 24px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <div style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Upcoming</div>
-              <div style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: '0.95rem', color: 'var(--white)', letterSpacing: '0.1em' }}>{upcomingSession.title}</div>
-            </div>
-            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: '1.1rem', color: 'var(--green)', letterSpacing: '0.1em' }}>
-              <Countdown scheduledAt={upcomingSession.scheduled_at} />
-            </div>
-          </div>
-        )}
-
-        <div className="two-col-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 32, alignItems: 'start' }}>
-          <div>
-            {/* Announcements */}
-            {announcements.length > 0 && (
-              <div style={{ marginBottom: 32 }}>
-                <div style={{ fontSize: '0.54rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 18, height: 1, background: 'var(--red)', display: 'inline-block' }} />
-                  Announcements
-                </div>
-                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)', border: '1px solid var(--rule)' }}>
-                  {announcements.slice(0, 5).map(a => (
-                    <div key={a.id} style={{ background: 'var(--ink)', padding: '16px 20px', borderLeft: a.pinned ? '2px solid var(--red)' : '2px solid transparent' }}>
-                      {a.pinned && <div style={{ fontSize: '0.5rem', letterSpacing: '0.2em', color: 'var(--red)', textTransform: 'uppercase', marginBottom: 4 }}>Pinned</div>}
-                      <p style={{ fontSize: '0.7rem', color: 'var(--chalk)', lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{a.content}</p>
-                      <div style={{ fontSize: '0.52rem', color: 'var(--muted)', marginTop: 8 }}>{a.users?.username} · {new Date(a.created_at).toLocaleDateString()}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Sessions */}
-            <div style={{ marginBottom: 32 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <div style={{ fontSize: '0.54rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 18, height: 1, background: 'var(--red)', display: 'inline-block' }} />
-                  Custom Games
-                </div>
-                <Link to={`/c/${slug}/customs`} style={{ fontSize: '0.54rem', letterSpacing: '0.14em', color: 'var(--red)' }}>View All →</Link>
-              </div>
-
-              {sessions.filter(s => !['ended','archived'].includes(s.status)).length === 0 ? (
-                <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '32px 24px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>No active sessions.</p>
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)', border: '1px solid var(--rule)' }}>
-                  {sessions.filter(s => !['ended','archived'].includes(s.status)).slice(0, 6).map(s => (
-                    <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`}
-                      style={{ background: 'var(--ink)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#1a1a1c'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'var(--ink)'}>
-                      <div>
-                        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'var(--white)', letterSpacing: '0.06em', marginBottom: 4 }}>{s.title}</div>
-                        {s.scheduled_at && <div style={{ fontSize: '0.56rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>{new Date(s.scheduled_at).toLocaleString()}</div>}
+          {/* Announcements */}
+          {announcements.length > 0 && (
+            <section className="fade-in-2">
+              <SectionLabel>Announcements</SectionLabel>
+              <div style={{ display: 'grid', gap: 2 }}>
+                {announcements.slice(0, 5).map((a, i) => (
+                  <div key={a.id} className="announcement-card" style={{
+                    background: '#0d0d0f',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    borderLeft: a.pinned ? '2px solid var(--red, #dc2626)' : '2px solid transparent',
+                    padding: '18px 22px',
+                    animation: `slideUp 0.4s ${i * 0.05}s ease both`,
+                  }}>
+                    {a.pinned && (
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.46rem', letterSpacing: '0.22em', color: 'var(--red, #dc2626)', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        Pinned
                       </div>
+                    )}
+                    {a.title && <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.95rem', color: '#fff', letterSpacing: '0.04em', marginBottom: 6 }}>{a.title}</div>}
+                    <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, whiteSpace: 'pre-wrap', margin: 0 }}>{a.content || a.body}</p>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.48rem', color: 'rgba(255,255,255,0.2)', marginTop: 10, letterSpacing: '0.1em' }}>
+                      {a.users?.username} · {new Date(a.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Active Sessions */}
+          <section className="fade-in-3">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <SectionLabel>Custom Games</SectionLabel>
+              <Link to={`/c/${slug}/customs`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.52rem', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', transition: 'color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
+              >View All →</Link>
+            </div>
+
+            {activeSessions.length === 0 ? (
+              <div style={{
+                border: '1px dashed rgba(255,255,255,0.08)',
+                padding: '40px 24px',
+                textAlign: 'center',
+              }}>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>No Active Sessions</div>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: 2 }}>
+                {activeSessions.slice(0, 6).map((s, i) => (
+                  <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`} className="community-session-card" style={{
+                    background: '#0d0d0f',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    padding: '18px 22px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                    flexWrap: 'wrap',
+                    transition: 'background 0.2s',
+                    animation: `slideUp 0.4s ${i * 0.06}s ease both`,
+                    position: 'relative', overflow: 'hidden',
+                  }}>
+                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 2, background: statusColor(s.status), opacity: 0.7 }} />
+                    <div style={{ paddingLeft: 8 }}>
+                      <div className="session-title" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.05rem', color: 'rgba(255,255,255,0.9)', letterSpacing: '0.04em', marginBottom: 4, transition: 'color 0.2s' }}>{s.title}</div>
+                      {s.scheduled_at && (
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em' }}>
+                          {new Date(s.scheduled_at).toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span className={`status-badge status-${s.status}`}>{s.status.replace('_', ' ')}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Results / History */}
-            {pastSessions.length > 0 && (
-              <div>
-                <div style={{ fontSize: '0.54rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 18, height: 1, background: 'var(--muted)', display: 'inline-block' }} />
-                  Results / History
-                </div>
-                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)', border: '1px solid var(--rule)' }}>
-                  {pastSessions.slice(0, 5).map(s => (
-                    <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`}
-                      style={{ background: 'var(--ink)', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, opacity: 0.7, transition: 'opacity 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.opacity = '1'}
-                      onMouseLeave={e => e.currentTarget.style.opacity = '0.7'}>
-                      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.9rem', color: 'var(--chalk)', letterSpacing: '0.06em' }}>{s.title}</div>
-                      <span className="status-badge status-ended">ended</span>
-                    </Link>
-                  ))}
-                </div>
+                      <svg className="session-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" style={{ opacity: 0, transform: 'translateX(-4px)', transition: 'all 0.2s' }}><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                  </Link>
+                ))}
               </div>
             )}
+          </section>
+
+          {/* Past Sessions */}
+          {pastSessions.length > 0 && (
+            <section>
+              <SectionLabel muted>Results / History</SectionLabel>
+              <div style={{ display: 'grid', gap: 1 }}>
+                {pastSessions.slice(0, 5).map(s => (
+                  <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`} className="past-session-row" style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.04)',
+                    padding: '12px 20px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                    opacity: 0.5,
+                    transition: 'opacity 0.2s, background 0.2s',
+                  }}>
+                    <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', letterSpacing: '0.04em' }}>{s.title}</div>
+                    <span className="status-badge status-ended">ended</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <div style={{ display: 'grid', gap: 16, position: 'sticky', top: 80 }}>
+
+          {/* Stats strip */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr',
+            gap: 2,
+          }}>
+            <StatBox label="Members" value={members.length} />
+            <StatBox label="Sessions" value={sessions.length} />
           </div>
 
-          {/* Sidebar */}
-          <div style={{ display: 'grid', gap: 16 }}>
-            {/* Community Rules */}
-            {community.rules && (
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  <div style={{ fontFamily: "'Black Ops One', cursive", fontSize: '1.2rem', letterSpacing: '0.06em', color: 'var(--white)' }}>Community Rules</div>
-                </div>
-                <div style={{ display: 'grid', gap: 8 }}>
-                  {community.rules.split('\n').filter(r => r.trim()).map((rule, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: 'var(--ink)', border: '1px solid var(--rule)', padding: '12px 14px' }}>
-                      <div style={{ minWidth: 24, height: 24, background: 'var(--red)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.48rem', color: '#fff', fontWeight: 700 }}>{String(i + 1).padStart(2, '0')}</span>
-                      </div>
-                      <span style={{ fontSize: '0.68rem', color: 'var(--chalk)', lineHeight: 1.6, paddingTop: 3 }}>{rule.replace(/^\d+\.\s*/, '')}</span>
-                    </div>
-                  ))}
-                </div>
+          {/* Community Rules */}
+          {community.rules && (
+            <div style={{
+              background: '#0d0d0f',
+              border: '1px solid rgba(255,255,255,0.06)',
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                padding: '14px 18px',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                display: 'flex', alignItems: 'center', gap: 10,
+                background: 'rgba(220,38,38,0.05)',
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red, #dc2626)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.52rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>Community Rules</span>
               </div>
-            )}
-
-            {/* Moderators */}
-            {mods.length > 0 && (
-              <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '20px' }}>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>Staff</div>
-                <div style={{ display: 'grid', gap: 10 }}>
-                  {mods.map(m => (
-                    <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      {m.avatar && <img src={`https://cdn.discordapp.com/avatars/${m.discord_id}/${m.avatar}.png`} alt="" style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--rule2)' }} />}
-                      <div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--white)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>{m.username}</div>
-                        <div style={{ fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: m.role === 'owner' ? 'var(--red)' : 'var(--muted)' }}>{m.role}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div style={{ padding: '12px 0' }}>
+                {community.rules.split('\n').filter(r => r.trim()).map((rule, i) => (
+                  <div key={i} style={{
+                    display: 'flex', gap: 14, alignItems: 'flex-start',
+                    padding: '10px 18px',
+                    borderBottom: i < community.rules.split('\n').filter(r => r.trim()).length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none',
+                  }}>
+                    <span style={{
+                      fontFamily: "'Black Ops One', cursive",
+                      fontSize: '0.7rem', color: 'var(--red, #dc2626)',
+                      minWidth: 18, flexShrink: 0, lineHeight: 1.6,
+                    }}>{i + 1}</span>
+                    <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7 }}>
+                      {rule.replace(/^\d+\.\s*/, '')}
+                    </span>
+                  </div>
+                ))}
               </div>
-            )}
-
-            {/* Member count */}
-            <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '20px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Members</div>
-              <div style={{ fontFamily: "'Black Ops One', cursive", fontSize: '2rem', color: 'var(--white)' }}>{members.length}</div>
             </div>
-          </div>
+          )}
+
+          {/* Staff */}
+          {mods.length > 0 && (
+            <div style={{
+              background: '#0d0d0f',
+              border: '1px solid rgba(255,255,255,0.06)',
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                padding: '14px 18px',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
+              }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.52rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>Staff</span>
+              </div>
+              <div style={{ padding: '8px 0' }}>
+                {mods.map(m => (
+                  <div key={m.id} className="staff-card" style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '10px 18px',
+                    transition: 'background 0.2s, border-color 0.2s',
+                    border: '1px solid transparent',
+                  }}>
+                    {m.avatar
+                      ? <img src={`https://cdn.discordapp.com/avatars/${m.discord_id}/${m.avatar}.png`} alt="" style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} />
+                      : <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)' }}>{m.username?.[0]?.toUpperCase()}</span>
+                        </div>
+                    }
+                    <div>
+                      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.85rem', color: '#fff', letterSpacing: '0.04em' }}>{m.username}</div>
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.46rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: m.role === 'owner' ? 'var(--red, #dc2626)' : 'rgba(255,255,255,0.25)' }}>{m.role}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
+}
+
+function HeroContent({ community, membership, members }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap' }}>
+      {community.logo && (
+        <div style={{
+          width: 72, height: 72, flexShrink: 0,
+          border: '2px solid rgba(255,255,255,0.15)',
+          overflow: 'hidden',
+          background: '#111',
+        }}>
+          <img src={community.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+      )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h1 className="community-hero-title" style={{
+          fontFamily: "'Black Ops One', cursive",
+          fontSize: 'clamp(2rem, 6vw, 3.6rem)',
+          color: '#fff',
+          letterSpacing: '0.03em',
+          lineHeight: 1,
+          marginBottom: 8,
+          textShadow: '0 2px 24px rgba(0,0,0,0.8)',
+        }}>{community.name}</h1>
+        {community.description && (
+          <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, maxWidth: 560, margin: '0 0 10px' }}>{community.description}</p>
+        )}
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+          {community.discord_url && (
+            <a href={community.discord_url} target="_blank" rel="noreferrer" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.14em', color: '#5865F2', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+              Discord ↗
+            </a>
+          )}
+          {community.twitter_url && (
+            <a href={community.twitter_url} target="_blank" rel="noreferrer" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>
+              Twitter ↗
+            </a>
+          )}
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.52rem', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em' }}>
+            {members.length} member{members.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SectionLabel({ children, muted }) {
+  return (
+    <div style={{
+      fontFamily: "'IBM Plex Mono', monospace",
+      fontSize: '0.52rem',
+      letterSpacing: '0.24em',
+      textTransform: 'uppercase',
+      color: muted ? 'rgba(255,255,255,0.2)' : 'var(--red, #dc2626)',
+      marginBottom: 14,
+      display: 'flex', alignItems: 'center', gap: 10,
+    }}>
+      <span style={{ display: 'inline-block', width: 20, height: 1, background: muted ? 'rgba(255,255,255,0.2)' : 'var(--red, #dc2626)', flexShrink: 0 }} />
+      {children}
+    </div>
+  )
+}
+
+function StatBox({ label, value }) {
+  return (
+    <div style={{
+      background: '#0d0d0f',
+      border: '1px solid rgba(255,255,255,0.06)',
+      padding: '16px 20px',
+    }}>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.46rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontFamily: "'Black Ops One', cursive", fontSize: '1.8rem', color: '#fff', lineHeight: 1 }}>{value}</div>
+    </div>
+  )
+}
+
+function statusColor(status) {
+  switch (status) {
+    case 'code_live':
+    case 'in_progress': return '#dc2626'
+    case 'starting': return '#f97316'
+    case 'open':
+    case 'filling': return '#16a34a'
+    case 'ready': return '#2563eb'
+    default: return 'rgba(255,255,255,0.15)'
+  }
 }
