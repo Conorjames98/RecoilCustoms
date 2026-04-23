@@ -1,17 +1,68 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+
+const PULL_THRESHOLD = 80
 
 export default function Nav() {
   const { user, loading, signOut } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const [pullProgress, setPullProgress] = useState(0) // 0-1
+  const [pulling, setPulling] = useState(false)
+  const [triggered, setTriggered] = useState(false)
+  const startY = useRef(null)
+
+  useEffect(() => {
+    function onTouchStart(e) {
+      if (window.scrollY === 0) startY.current = e.touches[0].clientY
+    }
+    function onTouchMove(e) {
+      if (startY.current === null) return
+      const delta = e.touches[0].clientY - startY.current
+      if (delta > 0) {
+        setPulling(true)
+        setPullProgress(Math.min(delta / PULL_THRESHOLD, 1))
+      }
+    }
+    function onTouchEnd() {
+      if (pullProgress >= 1 && !triggered) {
+        setTriggered(true)
+        setTimeout(() => window.location.reload(), 400)
+      } else {
+        setPullProgress(0)
+        setPulling(false)
+      }
+      startY.current = null
+    }
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchend', onTouchEnd)
+    return () => {
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [pullProgress, triggered])
 
   async function handleSignOut() { await signOut(); navigate('/'); setOpen(false) }
   const avatar = user?.user_metadata?.avatar_url
 
   return (
     <>
+      {/* Pull-to-refresh bar */}
+      {pulling && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 3, zIndex: 9999, background: 'var(--rule)' }}>
+          <div style={{
+            height: '100%',
+            width: `${pullProgress * 100}%`,
+            background: triggered ? '#fff' : 'var(--red)',
+            transition: triggered ? 'background 0.2s' : 'none',
+            boxShadow: `0 0 8px ${triggered ? '#fff' : 'var(--red)'}`,
+          }} />
+        </div>
+      )}
+
       <nav className="nav">
         <Link to="/" className="nav-logo" onClick={() => setOpen(false)}>RECOIL<span>.</span></Link>
 
@@ -66,7 +117,6 @@ export default function Nav() {
           ))}
         </div>
       )}
-
     </>
   )
 }
