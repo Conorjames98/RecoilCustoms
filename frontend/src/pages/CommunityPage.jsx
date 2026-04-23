@@ -166,7 +166,7 @@ export default function CommunityPage() {
       {/* Sticky Nav */}
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300,
-        height: 114, paddingTop: 50, background: 'rgba(8,8,8,0.92)',
+        height: 114, paddingTop: 70, background: 'rgba(8,8,8,0.92)',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', padding: '0 24px',
