@@ -239,14 +239,14 @@ export default function CommunityPage() {
           <div style={{ display: 'grid', gap: 16 }}>
             {/* Community Rules */}
             {community.rules && (
-              <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--red)' }}>Rules</div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <div style={{ fontFamily: "'Black Ops One', cursive", fontSize: '1.2rem', letterSpacing: '0.06em', color: 'var(--white)' }}>Community Rules</div>
                 </div>
                 <div style={{ display: 'grid', gap: 8 }}>
                   {community.rules.split('\n').filter(r => r.trim()).map((rule, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#0d0d0e', border: '1px solid var(--rule)', padding: '12px 14px' }}>
+                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: 'var(--ink)', border: '1px solid var(--rule)', padding: '12px 14px' }}>
                       <div style={{ minWidth: 24, height: 24, background: 'var(--red)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.48rem', color: '#fff', fontWeight: 700 }}>{String(i + 1).padStart(2, '0')}</span>
                       </div>
