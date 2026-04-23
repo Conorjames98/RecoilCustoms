@@ -98,7 +98,7 @@ export default function HomePage() {
               <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 0.9, letterSpacing: '0.03em', color: 'var(--white)', marginBottom: 16, minHeight: '3.6em', whiteSpace: 'pre-line' }}>
                 {heroText}<span style={{ color: 'var(--red)', animation: 'blink 1s step-end infinite' }}>.</span>
               </h1>
-              <p style={{ fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.9, marginBottom: 48, maxWidth: 400, fontWeight: 300 }}>
+              <p style={{ fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.9, marginBottom: 24, maxWidth: 400, fontWeight: 300 }}>
                 The custom lobby platform for serious Warzone communities. Build your group, run events, manage teams.
               </p>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
