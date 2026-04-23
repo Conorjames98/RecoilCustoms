@@ -95,7 +95,7 @@ export default function HomePage() {
                 <span style={{ color: 'var(--rule2)' }}>—</span>
                 <span style={{ color: 'var(--muted)' }}>Custom Lobbies</span>
               </div>
-              <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 0.9, letterSpacing: '0.03em', color: 'var(--white)', marginBottom: 4, whiteSpace: 'pre-line' }}>
+              <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 0.9, letterSpacing: '0.03em', color: 'var(--white)', marginBottom: 12, whiteSpace: 'pre-line', minHeight: '2.1em' }}>
                 {heroText}<span style={{ color: 'var(--red)', animation: 'blink 1s step-end infinite' }}>.</span>
               </h1>
               <p style={{ fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.9, marginBottom: 24, maxWidth: 400, fontWeight: 300 }}>
