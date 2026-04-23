@@ -79,7 +79,10 @@ export default function CommunityPage() {
     <div>
       {/* Banner */}
       {community.banner && (
-        <div style={{ height: 200, background: `url(${community.banner}) center/cover`, borderBottom: '1px solid var(--border)' }} />
+        <>
+          <div style={{ height: 200, background: `url(${community.banner}) center/cover` }} />
+          <div style={{ height: 3, background: 'var(--red)' }} />
+        </>
       )}
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px' }}>
