@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
+import { supabase } from '../lib/supabase'
 
 export default function ManagePage() {
   const { slug } = useParams()
@@ -15,6 +16,7 @@ export default function ManagePage() {
   const [tab, setTab] = useState('overview')
   const [form, setForm] = useState({ name: '', description: '', rules: '', visibility: 'private', discord_url: '', twitter_url: '', banner: '', logo: '' })
   const [annForm, setAnnForm] = useState({ title: '', body: '' })
+  const [uploading, setUploading] = useState({ banner: false, logo: false })
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
   const [error, setError] = useState('')
@@ -38,6 +40,18 @@ export default function ManagePage() {
       setSessions(s.data)
     }).finally(() => setLoading(false))
   }, [slug])
+
+  async function uploadImage(file, field) {
+    setUploading(u => ({ ...u, [field]: true }))
+    const ext = file.name.split('.').pop()
+    const path = `${slug}/${field}-${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('community-images').upload(path, file, { upsert: true })
+    if (!error) {
+      const { data } = supabase.storage.from('community-images').getPublicUrl(path)
+      setForm(f => ({ ...f, [field]: data.publicUrl }))
+    }
+    setUploading(u => ({ ...u, [field]: false }))
+  }
 
   async function saveSettings(e) {
     e.preventDefault()
@@ -135,8 +149,10 @@ export default function ManagePage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <div className="form-group" style={{ marginBottom: 8 }}>
-                    <label>Banner Image URL</label>
+                    <label>Banner Image</label>
                     <input value={form.banner} onChange={e => setForm(f => ({ ...f, banner: e.target.value }))} placeholder="https://..." />
+                    <input type="file" accept="image/*" style={{ marginTop: 6, fontSize: '0.62rem', color: 'var(--muted)' }} onChange={e => e.target.files[0] && uploadImage(e.target.files[0], 'banner')} />
+                    {uploading.banner && <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', color: 'var(--muted)' }}>Uploading...</span>}
                   </div>
                   {form.banner && (
                     <div style={{ height: 60, background: `url(${form.banner}) center/cover`, border: '1px solid var(--rule2)', marginTop: 4 }} />
@@ -149,8 +165,10 @@ export default function ManagePage() {
                 </div>
                 <div>
                   <div className="form-group" style={{ marginBottom: 8 }}>
-                    <label>Logo Image URL</label>
+                    <label>Logo Image</label>
                     <input value={form.logo} onChange={e => setForm(f => ({ ...f, logo: e.target.value }))} placeholder="https://..." />
+                    <input type="file" accept="image/*" style={{ marginTop: 6, fontSize: '0.62rem', color: 'var(--muted)' }} onChange={e => e.target.files[0] && uploadImage(e.target.files[0], 'logo')} />
+                    {uploading.logo && <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', color: 'var(--muted)' }}>Uploading...</span>}
                   </div>
                   {form.logo ? (
                     <div style={{ width: 60, height: 60, border: '1px solid var(--rule2)', overflow: 'hidden' }}>
