@@ -27,7 +27,7 @@ function CommunityCard({ c, showRole }) {
   )
 }
 
-const WORDS = ['RECOIL', 'YOUR\nCOMMUNITY', 'YOUR\nCUSTOMS']
+const WORDS = ['RECOIL', 'YOUR\nCOMMUNITY', 'YOUR\nCUSTOMS', 'YOUR\nWAY']
 
 function useTypewriter(words) {
   const [display, setDisplay] = useState('')
