@@ -96,14 +96,12 @@ export default function CommunityPage() {
         </>
       )}
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 24px' }}>
 
         {/* Header */}
-        <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: 32, marginBottom: 40, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            {community.logo && <img src={community.logo} alt="" style={{ width: 64, height: 64, objectFit: 'cover', border: '2px solid var(--border2)', borderRadius: '50%' }} />}
-            <div>
-              <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(1.8rem, 5vw, 3rem)', color: 'var(--white)', letterSpacing: '0.04em', marginBottom: 6 }}>
+        <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: 24, marginBottom: 40, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+          <div>
+            <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(1.8rem, 5vw, 3rem)', color: 'var(--white)', letterSpacing: '0.04em', marginBottom: 6 }}>
                 {community.name}
               </h1>
               {community.description && (
@@ -112,7 +110,6 @@ export default function CommunityPage() {
               <div style={{ display: 'flex', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
                 {community.discord_url && <a href={community.discord_url} target="_blank" rel="noreferrer" style={{ fontSize: '0.58rem', letterSpacing: '0.14em', color: '#5865F2' }}>Discord ↗</a>}
                 {community.twitter_url && <a href={community.twitter_url} target="_blank" rel="noreferrer" style={{ fontSize: '0.58rem', letterSpacing: '0.14em', color: 'var(--khaki)' }}>Twitter ↗</a>}
-              </div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
