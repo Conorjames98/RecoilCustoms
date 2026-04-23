@@ -167,7 +167,6 @@ export default function CommunityPage() {
       <div style={{
         position: 'fixed', top: 50, left: 0, right: 0, zIndex: 300,
         height: 64, background: 'rgba(8,8,8,0.92)',
-        borderTop: '50px solid rgba(8,8,8,0.92)',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', padding: '0 24px',
