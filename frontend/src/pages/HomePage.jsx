@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
@@ -27,10 +27,41 @@ function CommunityCard({ c, showRole }) {
   )
 }
 
+const WORDS = ['RECOIL', 'YOUR COMMUNITY', 'YOUR CUSTOMS']
+
+function useTypewriter(words) {
+  const [display, setDisplay] = useState('')
+  const [wordIdx, setWordIdx] = useState(0)
+  const [typing, setTyping] = useState(true)
+  const timeout = useRef(null)
+
+  useEffect(() => {
+    const word = words[wordIdx]
+    if (typing) {
+      if (display.length < word.length) {
+        timeout.current = setTimeout(() => setDisplay(word.slice(0, display.length + 1)), 80)
+      } else {
+        timeout.current = setTimeout(() => setTyping(false), 1800)
+      }
+    } else {
+      if (display.length > 0) {
+        timeout.current = setTimeout(() => setDisplay(display.slice(0, -1)), 45)
+      } else {
+        setWordIdx(i => (i + 1) % words.length)
+        setTyping(true)
+      }
+    }
+    return () => clearTimeout(timeout.current)
+  }, [display, typing, wordIdx])
+
+  return display
+}
+
 export default function HomePage() {
   const { user, loading } = useAuth()
   const [myCommunities, setMyCommunities] = useState([])
   const [featured, setFeatured] = useState([])
+  const heroText = useTypewriter(WORDS)
 
   useEffect(() => {
     api.get('/communities').then(r => setFeatured(r.data.filter(c => c.visibility === 'featured' || c.featured))).catch(() => {})
@@ -64,8 +95,8 @@ export default function HomePage() {
                 <span style={{ color: 'var(--rule2)' }}>—</span>
                 <span style={{ color: 'var(--muted)' }}>Custom Lobbies</span>
               </div>
-              <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 0.9, letterSpacing: '0.03em', color: 'var(--white)', marginBottom: 32 }}>
-                RECOIL<span style={{ color: 'var(--red)' }}>.</span>
+              <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 0.9, letterSpacing: '0.03em', color: 'var(--white)', marginBottom: 32, minHeight: '1.8em' }}>
+                {heroText}<span style={{ color: 'var(--red)', animation: 'blink 1s step-end infinite' }}>.</span>
               </h1>
               <p style={{ fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.9, marginBottom: 48, maxWidth: 400, fontWeight: 300 }}>
                 The custom lobby platform for serious Warzone communities. Build your group, run events, manage teams.
