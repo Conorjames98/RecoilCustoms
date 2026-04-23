@@ -14,6 +14,12 @@ export default function ManagePage() {
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('overview')
+  const DEFAULT_RULES = `1. No teaming or cheating of any kind
+2. Respect all players — toxic behaviour will result in a ban
+3. Follow the host's instructions at all times
+4. No stream sniping
+5. Report bugs or issues to a moderator`
+
   const [form, setForm] = useState({ name: '', description: '', rules: '', visibility: 'private', discord_url: '', twitter_url: '', banner: '', logo: '' })
   const [annForm, setAnnForm] = useState({ title: '', body: '' })
   const [uploading, setUploading] = useState({ banner: false, logo: false })
@@ -34,7 +40,7 @@ export default function ManagePage() {
         return
       }
       setCommunity(comm)
-      setForm({ name: comm.name, description: comm.description || '', rules: comm.rules || '', visibility: comm.visibility || 'private', discord_url: comm.discord_url || '', twitter_url: comm.twitter_url || '', banner: comm.banner || '', logo: comm.logo || '' })
+      setForm({ name: comm.name, description: comm.description || '', rules: comm.rules || DEFAULT_RULES, visibility: comm.visibility || 'private', discord_url: comm.discord_url || '', twitter_url: comm.twitter_url || '', banner: comm.banner || '', logo: comm.logo || '' })
       setMembers(m.data.map(m => ({ ...m.users, role: m.role })))
       setAnnouncements(a.data)
       setSessions(s.data)
