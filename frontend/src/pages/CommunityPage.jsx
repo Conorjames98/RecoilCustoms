@@ -164,17 +164,17 @@ export default function CommunityPage() {
           <div>
             {/* Announcements */}
             {announcements.length > 0 && (
-              <div style={{ marginBottom: 40 }}>
-                <div style={{ fontSize: '0.58rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red2)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 18, height: 1, background: 'var(--red2)', display: 'inline-block' }} />
+              <div style={{ marginBottom: 32 }}>
+                <div style={{ fontSize: '0.54rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ width: 18, height: 1, background: 'var(--red)', display: 'inline-block' }} />
                   Announcements
                 </div>
-                <div style={{ display: 'grid', gap: 1, background: 'var(--border)', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)' }}>
                   {announcements.slice(0, 5).map(a => (
-                    <div key={a.id} style={{ background: a.pinned ? 'var(--surface)' : 'var(--bg)', padding: '18px 22px', borderLeft: a.pinned ? '2px solid var(--red2)' : '2px solid transparent' }}>
-                      {a.pinned && <div style={{ fontSize: '0.52rem', letterSpacing: '0.2em', color: 'var(--red2)', textTransform: 'uppercase', marginBottom: 4 }}>Pinned</div>}
-                      <p style={{ fontSize: '0.7rem', color: 'var(--dirty)', lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{a.content}</p>
-                      <div style={{ fontSize: '0.55rem', color: 'var(--muted)', marginTop: 8 }}>{a.users?.username} · {new Date(a.created_at).toLocaleDateString()}</div>
+                    <div key={a.id} style={{ background: 'var(--ink)', padding: '16px 20px', borderLeft: a.pinned ? '2px solid var(--red)' : '2px solid transparent' }}>
+                      {a.pinned && <div style={{ fontSize: '0.5rem', letterSpacing: '0.2em', color: 'var(--red)', textTransform: 'uppercase', marginBottom: 4 }}>Pinned</div>}
+                      <p style={{ fontSize: '0.7rem', color: 'var(--chalk)', lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{a.content}</p>
+                      <div style={{ fontSize: '0.52rem', color: 'var(--muted)', marginTop: 8 }}>{a.users?.username} · {new Date(a.created_at).toLocaleDateString()}</div>
                     </div>
                   ))}
                 </div>
@@ -182,29 +182,29 @@ export default function CommunityPage() {
             )}
 
             {/* Sessions */}
-            <div style={{ marginBottom: 40 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div style={{ fontSize: '0.58rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red2)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 18, height: 1, background: 'var(--red2)', display: 'inline-block' }} />
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <div style={{ fontSize: '0.54rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ width: 18, height: 1, background: 'var(--red)', display: 'inline-block' }} />
                   Custom Games
                 </div>
-                <Link to={`/c/${slug}/customs`} style={{ fontSize: '0.58rem', letterSpacing: '0.14em', color: 'var(--red2)' }}>View All →</Link>
+                <Link to={`/c/${slug}/customs`} style={{ fontSize: '0.54rem', letterSpacing: '0.14em', color: 'var(--red)' }}>View All →</Link>
               </div>
 
               {sessions.filter(s => !['ended','archived'].includes(s.status)).length === 0 ? (
-                <div style={{ background: 'var(--surface)', border: '1px solid var(--border2)', padding: '32px 24px', textAlign: 'center' }}>
+                <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '32px 24px', textAlign: 'center' }}>
                   <p style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>No active sessions.</p>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gap: 1, background: 'var(--border)', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)' }}>
                   {sessions.filter(s => !['ended','archived'].includes(s.status)).slice(0, 6).map(s => (
                     <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`}
-                      style={{ background: 'var(--bg)', padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'var(--bg)'}>
+                      style={{ background: 'var(--ink)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', transition: 'background 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#1a1a1c'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--ink)'}>
                       <div>
-                        <div style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: '0.9rem', color: 'var(--white)', letterSpacing: '0.1em', marginBottom: 4 }}>{s.title}</div>
-                        {s.scheduled_at && <div style={{ fontSize: '0.58rem', color: 'var(--muted)' }}>{new Date(s.scheduled_at).toLocaleString()}</div>}
+                        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'var(--white)', letterSpacing: '0.06em', marginBottom: 4 }}>{s.title}</div>
+                        {s.scheduled_at && <div style={{ fontSize: '0.56rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>{new Date(s.scheduled_at).toLocaleString()}</div>}
                       </div>
                       <span className={`status-badge status-${s.status}`}>{s.status.replace('_', ' ')}</span>
                     </Link>
@@ -216,17 +216,17 @@ export default function CommunityPage() {
             {/* Results / History */}
             {pastSessions.length > 0 && (
               <div>
-                <div style={{ fontSize: '0.58rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ fontSize: '0.54rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ width: 18, height: 1, background: 'var(--muted)', display: 'inline-block' }} />
                   Results / History
                 </div>
-                <div style={{ display: 'grid', gap: 1, background: 'var(--border)', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)' }}>
                   {pastSessions.slice(0, 5).map(s => (
                     <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`}
-                      style={{ background: 'var(--bg)', padding: '14px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, opacity: 0.7, transition: 'opacity 0.15s' }}
+                      style={{ background: 'var(--ink)', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, opacity: 0.7, transition: 'opacity 0.15s' }}
                       onMouseEnter={e => e.currentTarget.style.opacity = '1'}
                       onMouseLeave={e => e.currentTarget.style.opacity = '0.7'}>
-                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: '0.85rem', color: 'var(--dirty)', letterSpacing: '0.1em' }}>{s.title}</div>
+                      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.9rem', color: 'var(--chalk)', letterSpacing: '0.06em' }}>{s.title}</div>
                       <span className="status-badge status-ended">ended</span>
                     </Link>
                   ))}
@@ -236,26 +236,26 @@ export default function CommunityPage() {
           </div>
 
           {/* Sidebar */}
-          <div style={{ display: 'grid', gap: 20 }}>
+          <div style={{ display: 'grid', gap: 16 }}>
             {/* Community Rules */}
             {community.rules && (
-              <div style={{ background: 'var(--surface)', border: '1px solid var(--border2)', padding: 20 }}>
-                <div style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 12 }}>Community Rules</div>
-                <p style={{ fontSize: '0.65rem', color: 'var(--khaki)', lineHeight: 1.9, whiteSpace: 'pre-wrap' }}>{community.rules}</p>
+              <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '20px' }}>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>Rules</div>
+                <p style={{ fontSize: '0.65rem', color: 'var(--chalk)', lineHeight: 1.9, whiteSpace: 'pre-wrap' }}>{community.rules}</p>
               </div>
             )}
 
             {/* Moderators */}
             {mods.length > 0 && (
-              <div style={{ background: 'var(--surface)', border: '1px solid var(--border2)', padding: 20 }}>
-                <div style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 12 }}>Staff</div>
-                <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '20px' }}>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>Staff</div>
+                <div style={{ display: 'grid', gap: 10 }}>
                   {mods.map(m => (
                     <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      {m.avatar && <img src={`https://cdn.discordapp.com/avatars/${m.discord_id}/${m.avatar}.png`} alt="" style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border2)' }} />}
+                      {m.avatar && <img src={`https://cdn.discordapp.com/avatars/${m.discord_id}/${m.avatar}.png`} alt="" style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--rule2)' }} />}
                       <div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--dirty)' }}>{m.username}</div>
-                        <div style={{ fontSize: '0.52rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: m.role === 'owner' ? 'var(--red2)' : 'var(--muted)' }}>{m.role}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--white)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>{m.username}</div>
+                        <div style={{ fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: m.role === 'owner' ? 'var(--red)' : 'var(--muted)' }}>{m.role}</div>
                       </div>
                     </div>
                   ))}
@@ -264,8 +264,8 @@ export default function CommunityPage() {
             )}
 
             {/* Member count */}
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border2)', padding: 20 }}>
-              <div style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 4 }}>Members</div>
+            <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '20px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Members</div>
               <div style={{ fontFamily: "'Black Ops One', cursive", fontSize: '2rem', color: 'var(--white)' }}>{members.length}</div>
             </div>
           </div>
