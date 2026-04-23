@@ -37,52 +37,60 @@ function CommunityCard({ c, index }) {
         background: 'var(--ink)',
         border: '1px solid var(--rule2)',
         borderTop: isOwner ? '2px solid var(--red)' : '1px solid var(--rule2)',
-        padding: '24px 28px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
-        flexWrap: 'wrap',
         overflow: 'hidden',
         animation: `reveal 0.4s ${index * 0.06}s ease both`,
-        transition: 'border-color 0.2s, background 0.2s',
+        transition: 'border-color 0.2s',
       }}
-      onMouseEnter={e => { e.currentTarget.style.background = '#141416'; e.currentTarget.style.borderColor = isOwner ? 'var(--red)' : 'var(--muted)' }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'var(--ink)'; e.currentTarget.style.borderColor = isOwner ? 'var(--red)' : 'var(--rule2)' }}
+      onMouseEnter={e => e.currentTarget.style.borderColor = isOwner ? 'var(--red)' : 'var(--muted)'}
+      onMouseLeave={e => e.currentTarget.style.borderColor = isOwner ? 'var(--red)' : 'var(--rule2)'}
     >
-      {/* Corner accent */}
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 0, height: 0, borderStyle: 'solid', borderWidth: '0 28px 28px 0', borderColor: `transparent ${isOwner ? 'var(--red)' : 'var(--rule2)'} transparent transparent`, opacity: isOwner ? 0.6 : 0.4 }} />
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        {/* Index number */}
-        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '2.5rem', color: 'var(--rule2)', lineHeight: 1, userSelect: 'none', minWidth: 40 }}>
-          {String(index + 1).padStart(2, '0')}
-        </div>
-        <div>
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.2rem', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 4 }}>
-            {c.name}
+      {/* Banner */}
+      <div style={{ height: 72, background: c.banner ? `url(${c.banner}) center/cover` : 'var(--black)', borderBottom: '1px solid var(--rule)', position: 'relative', display: 'flex', alignItems: 'flex-end', padding: '0 20px 10px' }}>
+        {!c.banner && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.06 }}>
+              <defs><pattern id={`g-${c.id}`} width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ff0a20" strokeWidth="0.5"/></pattern></defs>
+              <rect width="100%" height="100%" fill={`url(#g-${c.id})`}/>
+            </svg>
+            <span style={{ position: 'absolute', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.48rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase' }}>No Banner Set</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.12em', color: 'var(--muted)' }}>/{c.slug}</span>
-            <span style={{ width: 1, height: 10, background: 'var(--rule2)' }} />
-            <span style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '0.5rem',
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: isOwner ? 'var(--red)' : isMod ? '#fbbf24' : 'var(--muted)',
-              border: `1px solid ${isOwner ? 'rgba(255,10,32,0.4)' : isMod ? 'rgba(251,191,36,0.3)' : 'var(--rule2)'}`,
-              padding: '2px 8px',
-            }}>{c.role}</span>
-          </div>
+        )}
+        {/* Logo */}
+        <div style={{ width: 36, height: 36, border: '1px solid var(--rule2)', background: 'var(--ink)', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
+          {c.logo
+            ? <img src={c.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '1rem', color: 'var(--muted)' }}>{c.name?.[0]?.toUpperCase()}</span>
+          }
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <Link to={`/c/${c.slug}`} className="btn-ghost" style={{ fontSize: '0.58rem', padding: '7px 16px' }}>View</Link>
-        {(isOwner || isMod) && (
-          <Link to={`/c/${c.slug}/manage`} className="btn-red" style={{ fontSize: '0.58rem', padding: '7px 16px' }}>Manage</Link>
-        )}
+      {/* Card body */}
+      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        {/* Corner accent */}
+        <div style={{ position: 'absolute', top: 0, right: 0, width: 0, height: 0, borderStyle: 'solid', borderWidth: '0 24px 24px 0', borderColor: `transparent ${isOwner ? 'var(--red)' : 'var(--rule2)'} transparent transparent`, opacity: isOwner ? 0.7 : 0.4 }} />
+
+        <div>
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 4 }}>
+            {c.name}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.52rem', letterSpacing: '0.1em', color: 'var(--muted)' }}>/{c.slug}</span>
+            <span style={{ width: 1, height: 8, background: 'var(--rule2)' }} />
+            <span style={{
+              fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.48rem', letterSpacing: '0.14em', textTransform: 'uppercase',
+              color: isOwner ? 'var(--red)' : isMod ? '#fbbf24' : 'var(--muted)',
+              border: `1px solid ${isOwner ? 'rgba(255,10,32,0.35)' : isMod ? 'rgba(251,191,36,0.3)' : 'var(--rule2)'}`,
+              padding: '2px 7px',
+            }}>{c.role}</span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <Link to={`/c/${c.slug}`} className="btn-ghost" style={{ fontSize: '0.56rem', padding: '6px 14px' }}>View</Link>
+          {(isOwner || isMod) && (
+            <Link to={`/c/${c.slug}/manage`} className="btn-red" style={{ fontSize: '0.56rem', padding: '6px 14px' }}>Manage</Link>
+          )}
+        </div>
       </div>
     </div>
   )
