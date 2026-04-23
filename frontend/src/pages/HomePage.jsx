@@ -27,7 +27,7 @@ function CommunityCard({ c, showRole }) {
   )
 }
 
-const WORDS = ['RECOIL', 'YOUR COMMUNITY', 'YOUR CUSTOMS']
+const WORDS = ['RECOIL', 'YOUR\nCOMMUNITY', 'YOUR\nCUSTOMS']
 
 function useTypewriter(words) {
   const [display, setDisplay] = useState('')
@@ -95,7 +95,7 @@ export default function HomePage() {
                 <span style={{ color: 'var(--rule2)' }}>—</span>
                 <span style={{ color: 'var(--muted)' }}>Custom Lobbies</span>
               </div>
-              <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 0.9, letterSpacing: '0.03em', color: 'var(--white)', marginBottom: 32, minHeight: '1.8em' }}>
+              <h1 style={{ fontFamily: "'Black Ops One', cursive", fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 0.9, letterSpacing: '0.03em', color: 'var(--white)', marginBottom: 32, minHeight: '3.6em', whiteSpace: 'pre-line' }}>
                 {heroText}<span style={{ color: 'var(--red)', animation: 'blink 1s step-end infinite' }}>.</span>
               </h1>
               <p style={{ fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.9, marginBottom: 48, maxWidth: 400, fontWeight: 300 }}>
