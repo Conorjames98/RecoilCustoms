@@ -9,10 +9,11 @@ function Countdown({ scheduledAt }) {
     function calc() {
       const diff = new Date(scheduledAt) - Date.now()
       if (diff <= 0) return setLabel('Starting now')
-      const h = Math.floor(diff / 3600000)
+      const d = Math.floor(diff / 86400000)
+      const h = Math.floor((diff % 86400000) / 3600000)
       const m = Math.floor((diff % 3600000) / 60000)
       const s = Math.floor((diff % 60000) / 1000)
-      setLabel(h > 0 ? `${h}h ${m}m` : m > 0 ? `${m}m ${s}s` : `${s}s`)
+      setLabel(d > 0 ? `${d}d ${h}h ${m}m` : h > 0 ? `${h}h ${m}m` : m > 0 ? `${m}m ${s}s` : `${s}s`)
     }
     calc()
     const id = setInterval(calc, 1000)
