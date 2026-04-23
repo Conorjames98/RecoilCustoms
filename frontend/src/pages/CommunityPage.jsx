@@ -169,7 +169,7 @@ export default function CommunityPage() {
                   <span style={{ width: 18, height: 1, background: 'var(--red)', display: 'inline-block' }} />
                   Announcements
                 </div>
-                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)' }}>
+                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)', border: '1px solid var(--rule)' }}>
                   {announcements.slice(0, 5).map(a => (
                     <div key={a.id} style={{ background: 'var(--ink)', padding: '16px 20px', borderLeft: a.pinned ? '2px solid var(--red)' : '2px solid transparent' }}>
                       {a.pinned && <div style={{ fontSize: '0.5rem', letterSpacing: '0.2em', color: 'var(--red)', textTransform: 'uppercase', marginBottom: 4 }}>Pinned</div>}
@@ -196,7 +196,7 @@ export default function CommunityPage() {
                   <p style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>No active sessions.</p>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)' }}>
+                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)', border: '1px solid var(--rule)' }}>
                   {sessions.filter(s => !['ended','archived'].includes(s.status)).slice(0, 6).map(s => (
                     <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`}
                       style={{ background: 'var(--ink)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', transition: 'background 0.15s' }}
@@ -220,7 +220,7 @@ export default function CommunityPage() {
                   <span style={{ width: 18, height: 1, background: 'var(--muted)', display: 'inline-block' }} />
                   Results / History
                 </div>
-                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)' }}>
+                <div style={{ display: 'grid', gap: 1, background: 'var(--rule)', border: '1px solid var(--rule)' }}>
                   {pastSessions.slice(0, 5).map(s => (
                     <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`}
                       style={{ background: 'var(--ink)', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, opacity: 0.7, transition: 'opacity 0.15s' }}
