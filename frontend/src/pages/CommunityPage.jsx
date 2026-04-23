@@ -80,9 +80,9 @@ export default function CommunityPage() {
     <div>
       {/* Sticky top bar */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300, height: 98, background: '#080808', borderBottom: '1px solid var(--rule)', display: 'flex', alignItems: 'flex-end', padding: '0 20px 0 20px', justifyContent: 'space-between' }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', textTransform: 'uppercase', transition: 'color 0.15s', marginBottom: 12 }}
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}>
+        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, color: 'var(--white)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', transition: 'color 0.15s', marginBottom: 12 }}
+          onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--white)'}>
           ← Back
         </button>
         <Link to="/" style={{ fontFamily: "'Black Ops One', cursive", fontSize: '1.1rem', letterSpacing: '0.08em', color: 'var(--white)', marginBottom: 12 }}>
