@@ -126,10 +126,7 @@ export default function DashboardPage() {
 
       {/* Header */}
       <div style={{ position: 'relative', marginBottom: 48, paddingBottom: 32, borderBottom: '1px solid var(--rule)' }}>
-        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--red)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ display: 'inline-block', width: 20, height: 1, background: 'var(--red)' }} />
-          Operator Dashboard
-        </div>
+
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             {avatar && (
@@ -193,18 +190,23 @@ export default function DashboardPage() {
           )}
 
           {/* Member communities */}
-          {member.length > 0 && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--muted)' }}>Member Of</div>
-                <div style={{ flex: 1, height: 1, background: 'var(--rule)' }} />
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', color: 'var(--muted)', letterSpacing: '0.1em' }}>{member.length}</div>
-              </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--muted)' }}>Joined Communities</div>
+              <div style={{ flex: 1, height: 1, background: 'var(--rule)' }} />
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', color: 'var(--muted)', letterSpacing: '0.1em' }}>{member.length}</div>
+            </div>
+            {member.length > 0 ? (
               <div style={{ display: 'grid', gap: 8 }}>
                 {member.map((c, i) => <CommunityCard key={c.id} c={c} index={i} />)}
               </div>
-            </div>
-          )}
+            ) : (
+              <div style={{ border: '1px solid var(--rule)', padding: '32px', textAlign: 'center', background: 'var(--ink)' }}>
+                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>You haven't joined any communities yet</div>
+                <p style={{ fontSize: '0.7rem', color: 'var(--muted)', marginBottom: 16, lineHeight: 1.8 }}>Discover communities and join one to get started.</p>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
