@@ -23,9 +23,11 @@ function RequireAuth({ children }) {
 }
 
 function AppRoutes() {
+  const location = useLocation()
+  const hiddenNav = /^\/c\/[^/]+$/.test(location.pathname)
   return (
     <>
-      <Nav />
+      {!hiddenNav && <Nav />}
       <Routes>
         <Route path="/"                                       element={<HomePage />} />
         <Route path="/login"                                  element={<LoginPage />} />
