@@ -166,7 +166,7 @@ export default function CommunityPage() {
       {/* Sticky Nav */}
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300,
-        height: 90, background: 'rgba(8,8,8,0.92)',
+        height: 98, background: 'rgba(8,8,8,0.92)',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'flex-end', padding: '0 24px 14px',
@@ -203,7 +203,7 @@ export default function CommunityPage() {
           )}
         </div>
       </div>
-      <div style={{ height: 90 }} />
+      <div style={{ height: 98 }} />
 
       {/* Hero */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
