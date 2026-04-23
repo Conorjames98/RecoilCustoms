@@ -87,7 +87,7 @@ export default function HomePage() {
         <div style={{ position: 'absolute', bottom: -20, left: -20, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontStyle: 'italic', fontSize: 'clamp(8rem, 20vw, 22rem)', lineHeight: 0.85, color: 'transparent', WebkitTextStroke: '1px rgba(255,255,255,0.04)', userSelect: 'none', pointerEvents: 'none', whiteSpace: 'nowrap' }}>RECOIL</div>
 
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 40px' }} className="page-section">
-          <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 82px)', alignItems: 'center' }}>
+          <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 420px', minHeight: 'calc(100vh - 82px)', alignItems: 'center' }}>
 
             <div className="hero-left" style={{ paddingTop: 80, paddingBottom: 80, paddingRight: 60, borderRight: '1px solid var(--rule)', animation: 'reveal 0.6s ease both' }}>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--red)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -112,7 +112,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="hero-right" style={{ paddingTop: 80, paddingBottom: 80, paddingLeft: 60, animation: 'reveal 0.6s 0.15s ease both' }}>
+            <div className="hero-right" style={{ paddingTop: 80, paddingBottom: 80, paddingLeft: 60, animation: 'reveal 0.6s 0.15s ease both', flexShrink: 0, width: '420px' }}>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 32 }}>Platform Overview</div>
               {[
                 { label: 'Platform', value: 'Warzone Custom Lobbies' },
