@@ -29,7 +29,7 @@ export default function CreateSessionPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
   const [communityId, setCommunityId] = useState(null)
-  const [form, setForm] = useState({ title: '', description: '', team_count: 12, team_size: 4 })
+  const [form, setForm] = useState({ title: '', description: '', team_count: 12, team_size: 4, scheduled_at: '' })
   const [rounds, setRounds] = useState([defaultRound(0), defaultRound(1), defaultRound(2)])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -69,6 +69,7 @@ export default function CreateSessionPage() {
         description: form.description,
         team_count: form.team_count,
         team_size: form.team_size,
+        scheduled_at: form.scheduled_at || null,
         rounds: rounds.map(r => ({
           title: r.title,
           game_mode: r.game_mode,
@@ -109,6 +110,10 @@ export default function CreateSessionPage() {
           <div className="form-group">
             <label>Description</label>
             <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} maxLength={400} placeholder="Optional session info" />
+          </div>
+          <div className="form-group">
+            <label>Date &amp; Time</label>
+            <input type="datetime-local" value={form.scheduled_at} onChange={e => setForm(f => ({ ...f, scheduled_at: e.target.value }))} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
             <div className="form-group">
