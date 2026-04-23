@@ -44,7 +44,7 @@ export default function ManagePage() {
   async function uploadImage(file, field) {
     setUploading(u => ({ ...u, [field]: true }))
     const ext = file.name.split('.').pop()
-    const path = `${slug}/${field}-${Date.now()}.${ext}`
+    const path = `${slug}-${field}-${Date.now()}.${ext}`
     const { error } = await supabase.storage.from('community-images').upload(path, file, { upsert: true })
     if (!error) {
       const { data } = supabase.storage.from('community-images').getPublicUrl(path)
