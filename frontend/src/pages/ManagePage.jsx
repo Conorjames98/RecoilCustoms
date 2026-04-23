@@ -154,6 +154,7 @@ export default function ManagePage() {
                     <label>Banner Image</label>
                     <input value={form.banner} onChange={e => setForm(f => ({ ...f, banner: e.target.value }))} placeholder="https://..." />
                     <input type="file" accept="image/*" style={{ marginTop: 6, fontSize: '0.62rem', color: 'var(--muted)' }} onChange={e => e.target.files[0] && uploadImage(e.target.files[0], 'banner')} />
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.48rem', color: 'var(--muted)', letterSpacing: '0.08em' }}>Recommended: 1500×500px</span>
                     {uploading.banner && <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', color: 'var(--muted)' }}>Uploading...</span>}
                   </div>
                   {form.banner && (
