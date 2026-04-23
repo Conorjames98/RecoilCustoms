@@ -148,7 +148,33 @@ export default function ManagePage() {
             </div>
             <div className="form-group">
               <label>Community Rules</label>
-              <textarea value={form.rules} onChange={e => setForm(f => ({ ...f, rules: e.target.value }))} rows={4} placeholder="e.g. No teaming, respect all players..." />
+              {form.rules.split('\n').filter((_, i, arr) => i < arr.length).map((line, i) => {
+                const text = line.replace(/^\d+\.\s*/, '')
+                return (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.7rem', color: 'var(--muted)', minWidth: 20 }}>{i + 1}.</span>
+                    <input
+                      value={text}
+                      onChange={e => {
+                        const lines = form.rules.split('\n')
+                        lines[i] = `${i + 1}. ${e.target.value}`
+                        setForm(f => ({ ...f, rules: lines.join('\n') }))
+                      }}
+                      placeholder={`Rule ${i + 1}`}
+                      style={{ flex: 1 }}
+                    />
+                    <button type="button" onClick={() => {
+                      const lines = form.rules.split('\n').filter((_, idx) => idx !== i)
+                      const renumbered = lines.map((l, idx) => `${idx + 1}. ${l.replace(/^\d+\.\s*/, '')}`)
+                      setForm(f => ({ ...f, rules: renumbered.join('\n') }))
+                    }} style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer', fontSize: '0.8rem', padding: '0 4px' }}>×</button>
+                  </div>
+                )
+              })}
+              <button type="button" onClick={() => {
+                const lines = form.rules ? form.rules.split('\n') : []
+                setForm(f => ({ ...f, rules: [...lines, `${lines.length + 1}. `].join('\n') }))
+              }} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.1em', background: 'none', border: '1px solid var(--rule2)', color: 'var(--muted)', padding: '5px 12px', cursor: 'pointer', marginTop: 4 }}>+ Add Rule</button>
             </div>
 
             {/* Images */}
