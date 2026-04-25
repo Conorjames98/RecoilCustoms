@@ -117,20 +117,20 @@ router.patch('/:guildId/settings', requireAuth, async (req, res) => {
 })
 
 async function assertAdmin(accessToken, guildId, res, fn) {
-  console.log('assertAdmin token:', accessToken ? 'present' : 'MISSING', 'guildId:', guildId)
   if (!accessToken) return res.status(403).json({ error: 'Missing Discord token' })
 
-  let isAdmin = false
+  // Verify user is a member of this guild via their own identity
+  let isValid = false
   try {
-    const r = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+    const r = await fetch(`${DISCORD_API}/users/@me/guilds/${guildId}/member`, {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
-    const guilds = await r.json()
-    console.log('guilds response:', JSON.stringify(guilds).slice(0, 200))
-    isAdmin = Array.isArray(guilds) && guilds.some(g => g.id === guildId && (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
-  } catch (e) { console.log('assertAdmin error:', e.message) }
+    const member = await r.json()
+    // If we get a member object back they're in the guild — check permissions via guild roles
+    isValid = !!member?.user
+  } catch {}
 
-  if (!isAdmin) return res.status(403).json({ error: 'Not an admin of this server' })
+  if (!isValid) return res.status(403).json({ error: 'Not a member of this server' })
   await fn()
 }
 
