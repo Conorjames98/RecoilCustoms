@@ -22,7 +22,8 @@ router.get('/install/:slug', requireAuth, async (req, res) => {
   url.searchParams.set('client_id', process.env.DISCORD_CLIENT)
   url.searchParams.set('permissions', '8') // Administrator
   url.searchParams.set('scope', 'bot applications.commands')
-  url.searchParams.set('redirect_uri', `${process.env.BACKEND_URL}/api/discord/callback`)
+  const backendUrl = process.env.BACKEND_URL || `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+  url.searchParams.set('redirect_uri', `${backendUrl}/api/discord/callback`)
   url.searchParams.set('response_type', 'code')
   url.searchParams.set('state', state)
 
