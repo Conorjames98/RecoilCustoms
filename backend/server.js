@@ -27,6 +27,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.listen(PORT, () => {
   console.log(`Recoil backend on port ${PORT}`);
   if (process.env.DISCORD_TOKEN) {
+    require('./discord/deploy-commands');
     require('./discord/index');
     console.log('Discord bot starting...');
   }
