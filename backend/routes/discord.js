@@ -19,7 +19,7 @@ router.get('/install/:slug', requireAuth, async (req, res) => {
   const state = Buffer.from(JSON.stringify({ slug: req.params.slug })).toString('base64')
 
   const url = new URL('https://discord.com/oauth2/authorize')
-  url.searchParams.set('client_id', process.env.DISCORD_CLIENT_ID)
+  url.searchParams.set('client_id', process.env.DISCORD_CLIENT)
   url.searchParams.set('permissions', '8') // Administrator
   url.searchParams.set('scope', 'bot applications.commands')
   url.searchParams.set('redirect_uri', `${process.env.BACKEND_URL}/api/discord/callback`)
