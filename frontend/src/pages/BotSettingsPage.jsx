@@ -14,14 +14,24 @@ export default function BotSettingsPage() {
   const [tab, setTab] = useState('XP')
   const [draft, setDraft] = useState({})
   const [discordToken, setDiscordToken] = useState(null)
+  const [channels, setChannels] = useState([])
+  const [roles, setRoles] = useState([])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       const token = session?.provider_token
       setDiscordToken(token)
-      api.get(`/bot/${guildId}/settings`, { headers: { 'x-discord-token': token } })
-        .then(r => { setSettings(r.data.settings); setDraft(r.data.settings) })
-        .finally(() => setLoading(false))
+      const headers = { 'x-discord-token': token }
+      Promise.all([
+        api.get(`/bot/${guildId}/settings`, { headers }),
+        api.get(`/bot/${guildId}/channels`, { headers }),
+        api.get(`/bot/${guildId}/roles`, { headers }),
+      ]).then(([s, c, r]) => {
+        setSettings(s.data.settings)
+        setDraft(s.data.settings)
+        setChannels(c.data.channels || [])
+        setRoles(r.data.roles || [])
+      }).finally(() => setLoading(false))
     })
   }, [guildId])
 
@@ -92,7 +102,7 @@ export default function BotSettingsPage() {
         {tab === 'Welcome' && (
           <>
             <Toggle label="Welcome Messages" description="Send a message when a new member joins" value={draft.welcome_enabled} onChange={v => set('welcome_enabled', v)} />
-            <TextField label="Welcome Channel ID" description="Paste the channel ID to send welcome messages in (leave blank for system channel)" value={draft.welcome_channel_id || ''} onChange={v => set('welcome_channel_id', v || null)} disabled={!draft.welcome_enabled} />
+            <SelectField label="Welcome Channel" description="Channel to send welcome messages in (leave blank for system channel)" value={draft.welcome_channel_id || ''} onChange={v => set('welcome_channel_id', v || null)} options={channels} disabled={!draft.welcome_enabled} />
             <TextareaField label="Welcome Message" description="Use {user} for mention, {server} for server name" value={draft.welcome_message} onChange={v => set('welcome_message', v)} disabled={!draft.welcome_enabled} />
           </>
         )}
@@ -108,8 +118,8 @@ export default function BotSettingsPage() {
 
         {tab === 'Moderation' && (
           <>
-            <TextField label="Mod Role ID" description="Role ID that grants moderation permissions to bot commands" value={draft.mod_role_id || ''} onChange={v => set('mod_role_id', v || null)} />
-            <TextField label="Log Channel ID" description="Channel to send mod action logs" value={draft.log_channel_id || ''} onChange={v => set('log_channel_id', v || null)} />
+            <SelectField label="Mod Role" description="Role that grants moderation permissions to bot commands" value={draft.mod_role_id || ''} onChange={v => set('mod_role_id', v || null)} options={roles} />
+            <SelectField label="Log Channel" description="Channel to send mod action logs" value={draft.log_channel_id || ''} onChange={v => set('log_channel_id', v || null)} options={channels} />
           </>
         )}
       </div>
@@ -163,6 +173,25 @@ function NumberField({ label, description, value, onChange, min, max, disabled }
         onChange={e => onChange(parseInt(e.target.value) || min)}
         style={{ background: 'var(--black)', border: '1px solid var(--rule)', color: 'var(--white)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.7rem', padding: '8px 12px', width: 120, outline: 'none' }}
       />
+    </div>
+  )
+}
+
+function SelectField({ label, description, value, onChange, options, disabled }) {
+  return (
+    <div style={{ padding: '20px', background: 'var(--ink)', border: '1px solid var(--rule2)', opacity: disabled ? 0.5 : 1 }}>
+      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1rem', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 4 }}>{label}</div>
+      {description && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.55rem', color: 'var(--muted)', marginBottom: 12, lineHeight: 1.6 }}>{description}</div>}
+      <select
+        value={value || ''} disabled={disabled}
+        onChange={e => onChange(e.target.value || null)}
+        style={{ background: 'var(--black)', border: '1px solid var(--rule)', color: 'var(--white)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', padding: '8px 12px', width: '100%', maxWidth: 360, outline: 'none', cursor: 'pointer' }}
+      >
+        <option value="">— None —</option>
+        {options.map(o => (
+          <option key={o.id} value={o.id}>#{o.name}</option>
+        ))}
+      </select>
     </div>
   )
 }
