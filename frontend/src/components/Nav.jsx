@@ -70,6 +70,7 @@ export default function Nav() {
         <div className="nav-links nav-desktop">
           {!loading && (user ? (
             <>
+              <Link to="/lfg" className="nav-link">LFG</Link>
               <Link to="/dashboard" className="nav-link">Dashboard</Link>
               <Link to="/create" className="nav-link">New Community</Link>
               <Link to="/bot" className="nav-link">Bot</Link>

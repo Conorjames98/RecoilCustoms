@@ -242,3 +242,36 @@ create table if not exists bot_settings (
 -- ─── DISCORD OAUTH FIELDS ON PROFILES ────────────────────────────────────────
 alter table profiles add column if not exists discord_access_token text;
 alter table profiles add column if not exists discord_guilds jsonb default '[]';
+
+-- ─── LFG ─────────────────────────────────────────────────────────────────────
+create table if not exists lfg_posts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  mode text not null,
+  platform text not null default 'Any',
+  slots_needed integer not null default 1,
+  slots_filled integer not null default 0,
+  mic_required boolean default false,
+  note text,
+  status text not null default 'open',
+  created_at timestamptz default now(),
+  expires_at timestamptz default now() + interval '2 hours'
+);
+
+create table if not exists lfg_members (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid references lfg_posts(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  joined_at timestamptz default now(),
+  unique(post_id, user_id)
+);
+
+alter table lfg_posts enable row level security;
+alter table lfg_members enable row level security;
+create policy "anyone can view open lfg" on lfg_posts for select using (true);
+create policy "auth users can create lfg" on lfg_posts for insert with check (auth.uid() = user_id);
+create policy "owners can update lfg" on lfg_posts for update using (auth.uid() = user_id);
+create policy "anyone can view lfg members" on lfg_members for select using (true);
+create policy "auth users can join lfg" on lfg_members for insert with check (auth.uid() = user_id);
+create policy "auth users can leave lfg" on lfg_members for delete using (auth.uid() = user_id);
+alter table bot_settings add column if not exists lfg_channel_id text;

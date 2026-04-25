@@ -12,6 +12,7 @@ import CustomsPage     from './pages/CustomsPage'
 import CreateSessionPage from './pages/CreateSessionPage'
 import SessionPage     from './pages/SessionPage'
 import ControlPage     from './pages/ControlPage'
+import LFGPage         from './pages/LFGPage'
 import BotPage         from './pages/BotPage'
 import BotSettingsPage from './pages/BotSettingsPage'
 import NotFoundPage    from './pages/NotFoundPage'
@@ -42,6 +43,7 @@ function AppRoutes() {
         <Route path="/c/:slug/sessions/new"                   element={<RequireAuth><CreateSessionPage /></RequireAuth>} />
         <Route path="/c/:slug/sessions/:sessionId"            element={<RequireAuth><SessionPage /></RequireAuth>} />
         <Route path="/c/:slug/sessions/:sessionId/control"    element={<RequireAuth><ControlPage /></RequireAuth>} />
+        <Route path="/lfg"                                    element={<LFGPage />} />
         <Route path="/bot"                                    element={<RequireAuth><BotPage /></RequireAuth>} />
         <Route path="/bot/:guildId"                           element={<RequireAuth><BotSettingsPage /></RequireAuth>} />
         <Route path="*"                                       element={<NotFoundPage />} />

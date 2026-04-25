@@ -122,6 +122,7 @@ export default function BotSettingsPage() {
           <>
             <SelectField label="Mod Role" description="Role that grants moderation permissions to bot commands" value={draft.mod_role_id || ''} onChange={v => set('mod_role_id', v || null)} options={roles} />
             <SelectField label="Log Channel" description="Channel to send mod action logs" value={draft.log_channel_id || ''} onChange={v => set('log_channel_id', v || null)} options={channels} />
+            <SelectField label="LFG Channel" description="Channel where LFG posts from the website are announced" value={draft.lfg_channel_id || ''} onChange={v => set('lfg_channel_id', v || null)} options={channels} />
           </>
         )}
       </div>

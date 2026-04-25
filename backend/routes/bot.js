@@ -90,7 +90,8 @@ router.get('/:guildId/settings', requireAuth, async (req, res) => {
 router.patch('/:guildId/settings', requireAuth, async (req, res) => {
   const allowed = ['xp_enabled', 'xp_per_message', 'xp_cooldown_seconds', 'welcome_enabled',
     'welcome_channel_id', 'welcome_message', 'automod_bad_words', 'automod_spam_enabled',
-    'automod_spam_threshold', 'automod_invite_links_enabled', 'mod_role_id', 'log_channel_id']
+    'automod_spam_threshold', 'automod_invite_links_enabled', 'mod_role_id', 'log_channel_id',
+    'lfg_channel_id']
 
   const updates = {}
   for (const key of allowed) {
