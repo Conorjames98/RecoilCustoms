@@ -50,34 +50,30 @@ router.get('/guilds', requireAuth, async (req, res) => {
 
 // GET /api/bot/:guildId/channels — fetch text channels for the guild
 router.get('/:guildId/channels', requireAuth, async (req, res) => {
-  await assertAdmin(req.headers['x-discord-token'], req.params.guildId, res, async () => {
-    const r = await fetch(`${DISCORD_API}/guilds/${req.params.guildId}/channels`, {
-      headers: { Authorization: `Bot ${process.env.DISCORD_TOKEN}` }
-    })
-    const channels = await r.json()
-    console.log('channels raw:', JSON.stringify(channels).slice(0, 300))
-    if (!Array.isArray(channels)) return res.json({ channels: [] })
-    const text = channels
-      .filter(c => c.type === 0)
-      .sort((a, b) => a.position - b.position)
-      .map(c => ({ id: c.id, name: c.name }))
-    res.json({ channels: text })
+  const r = await fetch(`${DISCORD_API}/guilds/${req.params.guildId}/channels`, {
+    headers: { Authorization: `Bot ${process.env.DISCORD_TOKEN}` }
   })
+  const channels = await r.json()
+  if (!Array.isArray(channels)) return res.json({ channels: [] })
+  const text = channels
+    .filter(c => c.type === 0)
+    .sort((a, b) => a.position - b.position)
+    .map(c => ({ id: c.id, name: c.name }))
+  res.json({ channels: text })
 })
 
 // GET /api/bot/:guildId/roles — fetch roles for the guild
 router.get('/:guildId/roles', requireAuth, async (req, res) => {
-  await assertAdmin(req.headers['x-discord-token'], req.params.guildId, res, async () => {
-    const r = await fetch(`${DISCORD_API}/guilds/${req.params.guildId}/roles`, {
-      headers: { Authorization: `Bot ${process.env.DISCORD_TOKEN}` }
-    })
-    const roles = await r.json()
-    const filtered = roles
-      .filter(r => r.name !== '@everyone')
-      .sort((a, b) => b.position - a.position)
-      .map(r => ({ id: r.id, name: r.name }))
-    res.json({ roles: filtered })
+  const r = await fetch(`${DISCORD_API}/guilds/${req.params.guildId}/roles`, {
+    headers: { Authorization: `Bot ${process.env.DISCORD_TOKEN}` }
   })
+  const roles = await r.json()
+  if (!Array.isArray(roles)) return res.json({ roles: [] })
+  const filtered = roles
+    .filter(r => r.name !== '@everyone')
+    .sort((a, b) => b.position - a.position)
+    .map(r => ({ id: r.id, name: r.name }))
+  res.json({ roles: filtered })
 })
 
 // GET /api/bot/:guildId/settings
