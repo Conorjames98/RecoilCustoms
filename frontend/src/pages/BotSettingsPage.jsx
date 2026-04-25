@@ -29,6 +29,8 @@ export default function BotSettingsPage() {
       ]).then(([s, c, r]) => {
         setSettings(s.data.settings)
         setDraft(s.data.settings)
+        console.log('channels:', c.data)
+        console.log('roles:', r.data)
         setChannels(c.data.channels || [])
         setRoles(r.data.roles || [])
       }).finally(() => setLoading(false))
