@@ -78,38 +78,33 @@ router.get('/:guildId/roles', requireAuth, async (req, res) => {
 
 // GET /api/bot/:guildId/settings
 router.get('/:guildId/settings', requireAuth, async (req, res) => {
-  await assertAdmin(req.headers['x-discord-token'], req.params.guildId, res, async () => {
-    const { data } = await supabase
-      .from('bot_settings')
-      .select('*')
-      .eq('guild_id', req.params.guildId)
-      .single()
-
-    res.json({ settings: data || defaultSettings(req.params.guildId) })
-  })
+  const { data } = await supabase
+    .from('bot_settings')
+    .select('*')
+    .eq('guild_id', req.params.guildId)
+    .single()
+  res.json({ settings: data || defaultSettings(req.params.guildId) })
 })
 
 // PATCH /api/bot/:guildId/settings
 router.patch('/:guildId/settings', requireAuth, async (req, res) => {
-  await assertAdmin(req.headers['x-discord-token'], req.params.guildId, res, async () => {
-    const allowed = ['xp_enabled', 'xp_per_message', 'xp_cooldown_seconds', 'welcome_enabled',
-      'welcome_channel_id', 'welcome_message', 'automod_bad_words', 'automod_spam_enabled',
-      'automod_spam_threshold', 'automod_invite_links_enabled', 'mod_role_id', 'log_channel_id']
+  const allowed = ['xp_enabled', 'xp_per_message', 'xp_cooldown_seconds', 'welcome_enabled',
+    'welcome_channel_id', 'welcome_message', 'automod_bad_words', 'automod_spam_enabled',
+    'automod_spam_threshold', 'automod_invite_links_enabled', 'mod_role_id', 'log_channel_id']
 
-    const updates = {}
-    for (const key of allowed) {
-      if (req.body[key] !== undefined) updates[key] = req.body[key]
-    }
+  const updates = {}
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) updates[key] = req.body[key]
+  }
 
-    const { data, error } = await supabase
-      .from('bot_settings')
-      .upsert({ guild_id: req.params.guildId, ...updates }, { onConflict: 'guild_id' })
-      .select()
-      .single()
+  const { data, error } = await supabase
+    .from('bot_settings')
+    .upsert({ guild_id: req.params.guildId, ...updates }, { onConflict: 'guild_id' })
+    .select()
+    .single()
 
-    if (error) return res.status(500).json({ error: error.message })
-    res.json({ settings: data })
-  })
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ settings: data })
 })
 
 async function assertAdmin(accessToken, guildId, res, fn) {
