@@ -220,3 +220,25 @@ create table if not exists notifications (
 
 alter table notifications enable row level security;
 create policy "users see own notifications" on notifications for select using (auth.uid() = user_id);
+
+-- ─── BOT SETTINGS ────────────────────────────────────────────────────────────
+create table if not exists bot_settings (
+  guild_id text primary key,
+  xp_enabled boolean default true,
+  xp_per_message integer default 10,
+  xp_cooldown_seconds integer default 60,
+  welcome_enabled boolean default true,
+  welcome_channel_id text,
+  welcome_message text default 'Welcome {user} to {server}! 🎮',
+  automod_bad_words text[] default '{}',
+  automod_spam_enabled boolean default true,
+  automod_spam_threshold integer default 5,
+  automod_invite_links_enabled boolean default true,
+  mod_role_id text,
+  log_channel_id text,
+  updated_at timestamptz default now()
+);
+
+-- ─── DISCORD OAUTH FIELDS ON PROFILES ────────────────────────────────────────
+alter table profiles add column if not exists discord_access_token text;
+alter table profiles add column if not exists discord_guilds jsonb default '[]';
