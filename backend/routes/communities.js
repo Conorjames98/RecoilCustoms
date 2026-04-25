@@ -15,8 +15,8 @@ async function getMemberRole(communityId, userId) {
   return data?.role || null;
 }
 
-// GET /api/communities — public/featured communities
-router.get('/', async (req, res) => {
+// GET /api/communities — public/featured + user's own private communities
+router.get('/', optionalAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('communities')
     .select('id, name, slug, description, banner, logo, visibility, featured, created_at')
@@ -24,7 +24,27 @@ router.get('/', async (req, res) => {
     .order('featured', { ascending: false })
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+
+  let privateMine = []
+  if (req.user) {
+    const { data: memberships } = await supabase
+      .from('community_members')
+      .select('community_id')
+      .eq('user_id', req.user.id)
+    const ids = (memberships || []).map(m => m.community_id)
+    if (ids.length) {
+      const { data: priv } = await supabase
+        .from('communities')
+        .select('id, name, slug, description, banner, logo, visibility, featured, created_at')
+        .eq('visibility', 'private')
+        .in('id', ids)
+      privateMine = priv || []
+    }
+  }
+
+  const seen = new Set(data.map(c => c.id))
+  const merged = [...data, ...privateMine.filter(c => !seen.has(c.id))]
+  res.json(merged)
 });
 
 // GET /api/communities/:slug
