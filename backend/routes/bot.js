@@ -117,6 +117,7 @@ router.patch('/:guildId/settings', requireAuth, async (req, res) => {
 })
 
 async function assertAdmin(accessToken, guildId, res, fn) {
+  console.log('assertAdmin token:', accessToken ? 'present' : 'MISSING', 'guildId:', guildId)
   if (!accessToken) return res.status(403).json({ error: 'Missing Discord token' })
 
   let isAdmin = false
