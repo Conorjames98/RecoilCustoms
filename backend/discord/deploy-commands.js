@@ -19,7 +19,7 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN)
 ;(async () => {
   console.log(`Deploying ${commands.length} commands...`)
   await rest.put(
-    Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
+    Routes.applicationCommands(process.env.DISCORD_CLIENT),
     { body: commands }
   )
   console.log('✅ Commands deployed.')

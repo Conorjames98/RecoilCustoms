@@ -11,7 +11,7 @@ const BOT_PERMISSIONS = 8 // Administrator — simplest for setup
 // GET /api/bot/auth/url — returns Discord OAuth2 URL for adding bot / logging in
 router.get('/auth/url', requireAuth, (req, res) => {
   const params = new URLSearchParams({
-    client_id: process.env.DISCORD_CLIENT_ID,
+    client_id: process.env.DISCORD_CLIENT,
     redirect_uri: `${process.env.BACKEND_URL}/api/bot/auth/callback`,
     response_type: 'code',
     scope: 'identify guilds',
@@ -29,7 +29,7 @@ router.get('/auth/callback', async (req, res) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_id: process.env.DISCORD_CLIENT_ID,
+      client_id: process.env.DISCORD_CLIENT,
       client_secret: process.env.DISCORD_CLIENT_SECRET,
       grant_type: 'authorization_code',
       code,
@@ -80,7 +80,7 @@ router.get('/guilds', requireAuth, async (req, res) => {
   const guilds = profile.discord_guilds.map(g => ({
     ...g,
     hasBot: botGuildIds.has(g.id),
-    inviteUrl: `https://discord.com/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&permissions=${BOT_PERMISSIONS}&scope=bot+applications.commands&guild_id=${g.id}`
+    inviteUrl: `https://discord.com/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&permissions=${BOT_PERMISSIONS}&scope=bot+applications.commands&guild_id=${g.id}`
   }))
 
   res.json({ guilds })
