@@ -126,8 +126,9 @@ async function assertAdmin(accessToken, guildId, res, fn) {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
     const guilds = await r.json()
-    isAdmin = guilds.some(g => g.id === guildId && (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
-  } catch {}
+    console.log('guilds response:', JSON.stringify(guilds).slice(0, 200))
+    isAdmin = Array.isArray(guilds) && guilds.some(g => g.id === guildId && (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
+  } catch (e) { console.log('assertAdmin error:', e.message) }
 
   if (!isAdmin) return res.status(403).json({ error: 'Not an admin of this server' })
   await fn()
