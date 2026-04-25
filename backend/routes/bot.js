@@ -6,79 +6,57 @@ const requireAuth = require('../middleware/auth')
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
 
 const DISCORD_API = 'https://discord.com/api/v10'
-const BOT_PERMISSIONS = 8 // Administrator — simplest for setup
+const BOT_PERMISSIONS = 8
 
-// GET /api/bot/auth/url — returns Discord OAuth2 URL for adding bot / logging in
-router.get('/auth/url', requireAuth, (req, res) => {
-  const params = new URLSearchParams({
-    client_id: process.env.DISCORD_CLIENT,
-    redirect_uri: `${process.env.BACKEND_URL}/api/bot/auth/callback`,
-    response_type: 'code',
-    scope: 'identify guilds',
-    state: req.user.id
-  })
-  res.json({ url: `https://discord.com/oauth2/authorize?${params}` })
-})
-
-// GET /api/bot/auth/callback — Discord redirects here after OAuth
-router.get('/auth/callback', async (req, res) => {
-  const { code, state: userId } = req.query
-  if (!code || !userId) return res.redirect(`${process.env.FRONTEND_URL}/bot?error=missing_params`)
-
-  const tokenRes = await fetch(`${DISCORD_API}/oauth2/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: process.env.DISCORD_CLIENT,
-      client_secret: process.env.DISCORD_CLIENT_SECRET,
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: `${process.env.BACKEND_URL}/api/bot/auth/callback`
-    })
-  })
-
-  const tokens = await tokenRes.json()
-  if (!tokens.access_token) return res.redirect(`${process.env.FRONTEND_URL}/bot?error=oauth_failed`)
-
-  // Fetch guilds where user is admin
-  const guildsRes = await fetch(`${DISCORD_API}/users/@me/guilds`, {
-    headers: { Authorization: `Bearer ${tokens.access_token}` }
-  })
-  const guilds = await guildsRes.json()
-
-  // Store discord access token against user profile
-  const adminGuilds = guilds.filter(g => (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
-
-  await supabase.from('profiles').update({
-    discord_access_token: tokens.access_token,
-    discord_guilds: adminGuilds.map(g => ({ id: g.id, name: g.name, icon: g.icon }))
-  }).eq('id', userId)
-
-  res.redirect(`${process.env.FRONTEND_URL}/bot`)
-})
-
-// GET /api/bot/guilds — guilds user admins that have the bot
+// GET /api/bot/guilds — guilds the user admins, cross-referenced with bot membership
 router.get('/guilds', requireAuth, async (req, res) => {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('discord_guilds')
-    .eq('id', req.user.id)
-    .single()
+  // Get the Discord provider token Supabase stored at login
+  const { data: { user } } = await supabase.auth.admin.getUserById(req.user.id)
+  const discordToken = user?.identities?.[0]?.identity_data?.provider_token
+    || user?.app_metadata?.provider_token
 
-  if (!profile?.discord_guilds) return res.json({ guilds: [], needsAuth: true })
+  // Fallback: try fetching from raw identity
+  let accessToken = discordToken
+  if (!accessToken) {
+    // Supabase stores provider tokens in auth.identities — fetch via service role
+    const { data } = await supabase
+      .from('profiles')
+      .select('discord_access_token')
+      .eq('id', req.user.id)
+      .single()
+    accessToken = data?.discord_access_token
+  }
 
-  // Check which guilds have the bot by fetching bot guild list
+  if (!accessToken) return res.json({ guilds: [], needsRelogin: true })
+
+  // Fetch user's guilds from Discord
+  let userGuilds = []
+  try {
+    const r = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    })
+    if (!r.ok) return res.json({ guilds: [], needsRelogin: true })
+    userGuilds = await r.json()
+  } catch {
+    return res.json({ guilds: [], needsRelogin: true })
+  }
+
+  const adminGuilds = userGuilds.filter(g => (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
+
+  // Check which guilds have the bot
   let botGuildIds = new Set()
   try {
-    const botGuildsRes = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+    const r = await fetch(`${DISCORD_API}/users/@me/guilds`, {
       headers: { Authorization: `Bot ${process.env.DISCORD_TOKEN}` }
     })
-    const botGuilds = await botGuildsRes.json()
+    const botGuilds = await r.json()
     botGuildIds = new Set(botGuilds.map(g => g.id))
   } catch {}
 
-  const guilds = profile.discord_guilds.map(g => ({
-    ...g,
+  const guilds = adminGuilds.map(g => ({
+    id: g.id,
+    name: g.name,
+    icon: g.icon,
     hasBot: botGuildIds.has(g.id),
     inviteUrl: `https://discord.com/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&permissions=${BOT_PERMISSIONS}&scope=bot+applications.commands&guild_id=${g.id}`
   }))
@@ -88,7 +66,7 @@ router.get('/guilds', requireAuth, async (req, res) => {
 
 // GET /api/bot/:guildId/settings
 router.get('/:guildId/settings', requireAuth, async (req, res) => {
-  await assertAdmin(req.user.id, req.params.guildId, res, async () => {
+  await assertAdmin(req, res, async () => {
     const { data } = await supabase
       .from('bot_settings')
       .select('*')
@@ -101,10 +79,10 @@ router.get('/:guildId/settings', requireAuth, async (req, res) => {
 
 // PATCH /api/bot/:guildId/settings
 router.patch('/:guildId/settings', requireAuth, async (req, res) => {
-  await assertAdmin(req.user.id, req.params.guildId, res, async () => {
+  await assertAdmin(req, res, async () => {
     const allowed = ['xp_enabled', 'xp_per_message', 'xp_cooldown_seconds', 'welcome_enabled',
       'welcome_channel_id', 'welcome_message', 'automod_bad_words', 'automod_spam_enabled',
-      'automod_invite_links_enabled', 'automod_spam_threshold', 'mod_role_id', 'log_channel_id']
+      'automod_spam_threshold', 'automod_invite_links_enabled', 'mod_role_id', 'log_channel_id']
 
     const updates = {}
     for (const key of allowed) {
@@ -122,14 +100,21 @@ router.patch('/:guildId/settings', requireAuth, async (req, res) => {
   })
 })
 
-async function assertAdmin(userId, guildId, res, fn) {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('discord_guilds')
-    .eq('id', userId)
-    .single()
+async function assertAdmin(req, res, fn) {
+  const { data: { user } } = await supabase.auth.admin.getUserById(req.user.id)
+  const accessToken = user?.identities?.[0]?.identity_data?.provider_token
 
-  const isAdmin = profile?.discord_guilds?.some(g => g.id === guildId)
+  let isAdmin = false
+  if (accessToken) {
+    try {
+      const r = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      const guilds = await r.json()
+      isAdmin = guilds.some(g => g.id === req.params.guildId && (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
+    } catch {}
+  }
+
   if (!isAdmin) return res.status(403).json({ error: 'Not an admin of this server' })
   await fn()
 }

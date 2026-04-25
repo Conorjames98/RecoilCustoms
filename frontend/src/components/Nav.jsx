@@ -72,6 +72,7 @@ export default function Nav() {
             <>
               <Link to="/dashboard" className="nav-link">Dashboard</Link>
               <Link to="/create" className="nav-link">New Community</Link>
+              <Link to="/bot" className="nav-link">Bot</Link>
               <div className="nav-sep" />
               {avatar && (
                 <div style={{ padding: '0 14px', borderLeft: '1px solid var(--rule)', height: 54, display: 'flex', alignItems: 'center' }}>
@@ -110,6 +111,7 @@ export default function Nav() {
               )}
               <Link to="/dashboard" onClick={() => setOpen(false)} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '2rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--white)', padding: '16px 0', borderBottom: '1px solid var(--rule)' }}>Dashboard</Link>
               <Link to="/create" onClick={() => setOpen(false)} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '2rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--white)', padding: '16px 0', borderBottom: '1px solid var(--rule)' }}>New Community</Link>
+              <Link to="/bot" onClick={() => setOpen(false)} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '2rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--white)', padding: '16px 0', borderBottom: '1px solid var(--rule)' }}>Bot</Link>
               <button onClick={handleSignOut} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '2rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--red)', padding: '16px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', marginTop: 'auto' }}>Sign Out</button>
             </>
           ) : (

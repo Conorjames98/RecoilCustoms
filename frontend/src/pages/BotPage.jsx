@@ -8,24 +8,17 @@ export default function BotPage() {
   const navigate = useNavigate()
   const [guilds, setGuilds] = useState([])
   const [loading, setLoading] = useState(true)
-  const [needsAuth, setNeedsAuth] = useState(false)
-  const [connecting, setConnecting] = useState(false)
+  const [needsRelogin, setNeedsRelogin] = useState(false)
 
   useEffect(() => {
     api.get('/bot/guilds')
       .then(r => {
-        if (r.data.needsAuth) setNeedsAuth(true)
+        if (r.data.needsRelogin) setNeedsRelogin(true)
         else setGuilds(r.data.guilds)
       })
-      .catch(() => setNeedsAuth(true))
+      .catch(() => setNeedsRelogin(true))
       .finally(() => setLoading(false))
   }, [])
-
-  async function connectDiscord() {
-    setConnecting(true)
-    const { data } = await api.get('/bot/auth/url')
-    window.location.href = data.url
-  }
 
   const guildIcon = (g) => g.icon
     ? `https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png`
@@ -47,22 +40,14 @@ export default function BotPage() {
 
       {loading ? (
         <div className="spinner" />
-      ) : needsAuth ? (
-        <div style={{ border: '1px solid var(--rule)', padding: '64px 32px', textAlign: 'center', background: 'var(--ink)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.025, pointerEvents: 'none' }}>
-            <svg width="100%" height="100%"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ff0a20" strokeWidth="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
+      ) : needsRelogin ? (
+        <div style={{ border: '1px solid var(--rule)', padding: '64px 32px', textAlign: 'center', background: 'var(--ink)' }}>
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '1.4rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 10 }}>
+            Session Expired
           </div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '1.4rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 10 }}>
-              Connect Discord
-            </div>
-            <p style={{ fontSize: '0.74rem', color: 'var(--muted)', marginBottom: 28, lineHeight: 1.8, maxWidth: 400, margin: '0 auto 28px' }}>
-              Link your Discord account to see your servers and configure the bot.
-            </p>
-            <button className="btn-red" onClick={connectDiscord} disabled={connecting} style={{ fontSize: '0.65rem', padding: '12px 28px' }}>
-              {connecting ? 'Redirecting...' : 'Connect Discord →'}
-            </button>
-          </div>
+          <p style={{ fontSize: '0.74rem', color: 'var(--muted)', marginBottom: 28, lineHeight: 1.8 }}>
+            Please sign out and sign back in with Discord to refresh your server list.
+          </p>
         </div>
       ) : guilds.length === 0 ? (
         <div style={{ border: '1px solid var(--rule)', padding: '48px 32px', textAlign: 'center', background: 'var(--ink)' }}>
