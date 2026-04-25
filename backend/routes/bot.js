@@ -10,23 +10,7 @@ const BOT_PERMISSIONS = 8
 
 // GET /api/bot/guilds — guilds the user admins, cross-referenced with bot membership
 router.get('/guilds', requireAuth, async (req, res) => {
-  // Get the Discord provider token Supabase stored at login
-  const { data: { user } } = await supabase.auth.admin.getUserById(req.user.id)
-  const discordToken = user?.identities?.[0]?.identity_data?.provider_token
-    || user?.app_metadata?.provider_token
-
-  // Fallback: try fetching from raw identity
-  let accessToken = discordToken
-  if (!accessToken) {
-    // Supabase stores provider tokens in auth.identities — fetch via service role
-    const { data } = await supabase
-      .from('profiles')
-      .select('discord_access_token')
-      .eq('id', req.user.id)
-      .single()
-    accessToken = data?.discord_access_token
-  }
-
+  const accessToken = req.headers['x-discord-token']
   if (!accessToken) return res.json({ guilds: [], needsRelogin: true })
 
   // Fetch user's guilds from Discord
@@ -66,7 +50,7 @@ router.get('/guilds', requireAuth, async (req, res) => {
 
 // GET /api/bot/:guildId/settings
 router.get('/:guildId/settings', requireAuth, async (req, res) => {
-  await assertAdmin(req, res, async () => {
+  await assertAdmin(req.headers['x-discord-token'], req.params.guildId, res, async () => {
     const { data } = await supabase
       .from('bot_settings')
       .select('*')
@@ -79,7 +63,7 @@ router.get('/:guildId/settings', requireAuth, async (req, res) => {
 
 // PATCH /api/bot/:guildId/settings
 router.patch('/:guildId/settings', requireAuth, async (req, res) => {
-  await assertAdmin(req, res, async () => {
+  await assertAdmin(req.headers['x-discord-token'], req.params.guildId, res, async () => {
     const allowed = ['xp_enabled', 'xp_per_message', 'xp_cooldown_seconds', 'welcome_enabled',
       'welcome_channel_id', 'welcome_message', 'automod_bad_words', 'automod_spam_enabled',
       'automod_spam_threshold', 'automod_invite_links_enabled', 'mod_role_id', 'log_channel_id']
@@ -100,20 +84,17 @@ router.patch('/:guildId/settings', requireAuth, async (req, res) => {
   })
 })
 
-async function assertAdmin(req, res, fn) {
-  const { data: { user } } = await supabase.auth.admin.getUserById(req.user.id)
-  const accessToken = user?.identities?.[0]?.identity_data?.provider_token
+async function assertAdmin(accessToken, guildId, res, fn) {
+  if (!accessToken) return res.status(403).json({ error: 'Missing Discord token' })
 
   let isAdmin = false
-  if (accessToken) {
-    try {
-      const r = await fetch(`${DISCORD_API}/users/@me/guilds`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      })
-      const guilds = await r.json()
-      isAdmin = guilds.some(g => g.id === req.params.guildId && (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
-    } catch {}
-  }
+  try {
+    const r = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    })
+    const guilds = await r.json()
+    isAdmin = guilds.some(g => g.id === guildId && (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
+  } catch {}
 
   if (!isAdmin) return res.status(403).json({ error: 'Not an admin of this server' })
   await fn()

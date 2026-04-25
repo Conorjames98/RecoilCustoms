@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import api from '../lib/api'
 
 const TABS = ['XP', 'Welcome', 'Automod', 'Moderation']
@@ -12,14 +13,16 @@ export default function BotSettingsPage() {
   const [saved, setSaved] = useState(false)
   const [tab, setTab] = useState('XP')
   const [draft, setDraft] = useState({})
+  const [discordToken, setDiscordToken] = useState(null)
 
   useEffect(() => {
-    api.get(`/bot/${guildId}/settings`)
-      .then(r => {
-        setSettings(r.data.settings)
-        setDraft(r.data.settings)
-      })
-      .finally(() => setLoading(false))
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const token = session?.provider_token
+      setDiscordToken(token)
+      api.get(`/bot/${guildId}/settings`, { headers: { 'x-discord-token': token } })
+        .then(r => { setSettings(r.data.settings); setDraft(r.data.settings) })
+        .finally(() => setLoading(false))
+    })
   }, [guildId])
 
   function set(key, value) {
@@ -29,7 +32,7 @@ export default function BotSettingsPage() {
   async function save() {
     setSaving(true)
     try {
-      const { data } = await api.patch(`/bot/${guildId}/settings`, draft)
+      const { data } = await api.patch(`/bot/${guildId}/settings`, draft, { headers: { 'x-discord-token': discordToken } })
       setSettings(data.settings)
       setDraft(data.settings)
       setSaved(true)

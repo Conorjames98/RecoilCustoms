@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import api from '../lib/api'
 
 export default function BotPage() {
@@ -11,13 +12,18 @@ export default function BotPage() {
   const [needsRelogin, setNeedsRelogin] = useState(false)
 
   useEffect(() => {
-    api.get('/bot/guilds')
-      .then(r => {
-        if (r.data.needsRelogin) setNeedsRelogin(true)
-        else setGuilds(r.data.guilds)
-      })
-      .catch(() => setNeedsRelogin(true))
-      .finally(() => setLoading(false))
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const providerToken = session?.provider_token
+      if (!providerToken) { setNeedsRelogin(true); setLoading(false); return }
+
+      api.get('/bot/guilds', { headers: { 'x-discord-token': providerToken } })
+        .then(r => {
+          if (r.data.needsRelogin) setNeedsRelogin(true)
+          else setGuilds(r.data.guilds)
+        })
+        .catch(() => setNeedsRelogin(true))
+        .finally(() => setLoading(false))
+    })
   }, [])
 
   const guildIcon = (g) => g.icon
