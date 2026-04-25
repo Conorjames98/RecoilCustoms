@@ -55,8 +55,10 @@ router.get('/:guildId/channels', requireAuth, async (req, res) => {
       headers: { Authorization: `Bot ${process.env.DISCORD_TOKEN}` }
     })
     const channels = await r.json()
+    console.log('channels raw:', JSON.stringify(channels).slice(0, 300))
+    if (!Array.isArray(channels)) return res.json({ channels: [] })
     const text = channels
-      .filter(c => c.type === 0) // 0 = text channel
+      .filter(c => c.type === 0)
       .sort((a, b) => a.position - b.position)
       .map(c => ({ id: c.id, name: c.name }))
     res.json({ channels: text })
