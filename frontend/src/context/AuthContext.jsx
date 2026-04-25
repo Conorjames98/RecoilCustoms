@@ -27,14 +27,15 @@ export function AuthProvider({ children }) {
       if (event === 'INITIAL_SESSION') {
         if (session?.user) { setUser(session.user); resolve() }
         else if (!hasOAuthCallback) resolve()
-        // If OAuth callback, wait for SIGNED_IN before resolving
       } else if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user)
+        if (session.provider_token) localStorage.setItem('discord_provider_token', session.provider_token)
         resolve()
       } else if (event === 'TOKEN_REFRESHED' && session?.user) {
         setUser(session.user)
       } else if (event === 'SIGNED_OUT') {
         setUser(null)
+        localStorage.removeItem('discord_provider_token')
         resolve()
       }
     })

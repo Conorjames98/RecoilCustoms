@@ -19,7 +19,7 @@ export default function BotSettingsPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      const token = session?.provider_token
+      const token = session?.provider_token || localStorage.getItem('discord_provider_token')
       setDiscordToken(token)
       const headers = { 'x-discord-token': token }
       Promise.all([

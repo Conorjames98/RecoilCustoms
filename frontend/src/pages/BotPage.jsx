@@ -13,7 +13,7 @@ export default function BotPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      const providerToken = session?.provider_token
+      const providerToken = session?.provider_token || localStorage.getItem('discord_provider_token')
       if (!providerToken) { setNeedsRelogin(true); setLoading(false); return }
 
       api.get('/bot/guilds', { headers: { 'x-discord-token': providerToken } })
