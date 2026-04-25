@@ -153,8 +153,8 @@ input, textarea, select {
   background: var(--ink);
   border: 1px solid var(--rule2);
   color: var(--chalk);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.82rem; padding: 12px 14px; width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; padding: 12px 14px; width: 100%;
   outline: none; appearance: none;
   border-radius: var(--radius-sm);
   transition: border-color 0.15s, box-shadow 0.15s;
