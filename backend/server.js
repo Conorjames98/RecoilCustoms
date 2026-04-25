@@ -20,6 +20,7 @@ app.use('/api/communities',  require('./routes/communities'));
 app.use('/api/sessions',     require('./routes/sessions'));
 app.use('/api/rounds',       require('./routes/rounds'));
 app.use('/api/teams',        require('./routes/teams'));
+app.use('/api/discord',      require('./routes/discord'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 

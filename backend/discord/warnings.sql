@@ -6,3 +6,7 @@ create table if not exists warnings (
   reason text not null,
   created_at timestamptz default now()
 );
+
+-- Add bot install fields to communities
+alter table communities add column if not exists guild_id text unique;
+alter table communities add column if not exists bot_installed boolean default false;
