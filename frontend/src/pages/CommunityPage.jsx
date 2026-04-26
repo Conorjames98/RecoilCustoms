@@ -545,7 +545,7 @@ export default function CommunityPage() {
 
 function HeroContent({ community, membership, members }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
       {community.logo && (
         <div style={{
           width: 72, height: 72, flexShrink: 0,
