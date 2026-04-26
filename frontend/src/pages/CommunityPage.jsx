@@ -242,7 +242,7 @@ export default function CommunityPage() {
           )}
         </div>
       </div>
-      <div style={{ height: 98 }} />
+      <div style={{ height: 148 }} />
 
       {/* Hero */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
