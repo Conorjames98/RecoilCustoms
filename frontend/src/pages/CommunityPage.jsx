@@ -229,8 +229,8 @@ export default function CommunityPage() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {isOwnerOrMod && (
             <>
-              <Link to={`/c/${slug}/manage`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.12em', padding: '5px 12px', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', background: 'none', textTransform: 'uppercase' }}>Manage</Link>
-              <Link to={`/c/${slug}/sessions/new`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.12em', padding: '6px 14px', border: '1px solid #fff', color: '#b41414', background: '#fff', textTransform: 'uppercase', fontWeight: 700 }}>+ Session</Link>
+              <Link to={`/c/${slug}/manage`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.12em', padding: '5px 12px', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', background: 'none', textTransform: 'uppercase', borderRadius: 'var(--radius-sm)' }}>Manage</Link>
+              <Link to={`/c/${slug}/sessions/new`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.12em', padding: '6px 14px', border: '1px solid #fff', color: '#b41414', background: '#fff', textTransform: 'uppercase', fontWeight: 700, borderRadius: 'var(--radius-sm)' }}>+ Session</Link>
             </>
           )}
           {user && !membership && (
