@@ -216,8 +216,7 @@ export default function CommunityPage() {
           background: 'none', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: 10,
           color: 'rgba(255,255,255,0.85)',
-          fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem',
-          letterSpacing: '0.18em', textTransform: 'uppercase',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '0.9rem', fontWeight: 500,
           transition: 'color 0.2s',
         }}
           onMouseEnter={e => e.currentTarget.style.color = '#fff'}
@@ -229,8 +228,8 @@ export default function CommunityPage() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {isOwnerOrMod && (
             <>
-              <Link to={`/c/${slug}/manage`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.12em', padding: '5px 12px', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', background: 'none', textTransform: 'uppercase', borderRadius: 'var(--radius-sm)' }}>Manage</Link>
-              <Link to={`/c/${slug}/sessions/new`} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.56rem', letterSpacing: '0.12em', padding: '6px 14px', border: '1px solid #fff', color: '#b41414', background: '#fff', textTransform: 'uppercase', fontWeight: 700, borderRadius: 'var(--radius-sm)' }}>+ Session</Link>
+              <Link to={`/c/${slug}/manage`} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', fontWeight: 500, padding: '5px 14px', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', background: 'none', borderRadius: 'var(--radius-sm)' }}>Manage</Link>
+              <Link to={`/c/${slug}/sessions/new`} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', fontWeight: 700, padding: '6px 14px', border: '1px solid #fff', color: '#b41414', background: '#fff', borderRadius: 'var(--radius-sm)' }}>+ Session</Link>
             </>
           )}
           {user && !membership && (
