@@ -54,6 +54,8 @@ create table if not exists communities (
   twitter_url text,
   visibility text default 'private',
   featured boolean default false,
+  discord_guild_id text,
+  bot_installed boolean default false,
   created_at timestamptz default now()
 );
 

@@ -102,13 +102,13 @@ router.get('/:slug/announcements', async (req, res) => {
 
 // POST /api/communities — create
 router.post('/', requireAuth, async (req, res) => {
-  const { name, slug, description, visibility } = req.body;
+  const { name, slug, description, visibility, logo, discord_guild_id } = req.body;
   if (!name || !slug) return res.status(400).json({ error: 'name and slug required' });
   const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
 
   const { data, error } = await supabase
     .from('communities')
-    .insert({ name, slug: cleanSlug, description, visibility: visibility || 'private', owner_id: req.user.id })
+    .insert({ name, slug: cleanSlug, description, visibility: visibility || 'private', owner_id: req.user.id, logo: logo || null, discord_guild_id: discord_guild_id || null })
     .select().single();
   if (error) return res.status(400).json({ error: error.message });
 
