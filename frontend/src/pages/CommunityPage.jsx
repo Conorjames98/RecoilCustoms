@@ -310,6 +310,7 @@ export default function CommunityPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             background: 'rgba(220,38,38,0.12)',
             border: '1px solid rgba(220,38,38,0.5)',
+            borderRadius: 'var(--radius)',
             padding: '20px 28px',
             flexWrap: 'wrap', gap: 12,
           }}>
@@ -335,6 +336,7 @@ export default function CommunityPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             background: 'rgba(255,255,255,0.02)',
             border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 'var(--radius)',
             padding: '20px 28px',
             flexWrap: 'wrap', gap: 16,
             position: 'relative', overflow: 'hidden',
@@ -365,7 +367,7 @@ export default function CommunityPage() {
           {announcements.length > 0 && (
             <section className="fade-in-2">
               <SectionLabel>Announcements</SectionLabel>
-              <div style={{ display: 'grid', gap: 2 }}>
+              <div style={{ display: 'grid', gap: 8 }}>
                 {announcements.slice(0, 5).map((a, i) => (
                   <div key={a.id} className="announcement-card" style={{
                     background: 'rgba(255,255,255,0.03)',
@@ -411,7 +413,7 @@ export default function CommunityPage() {
                 <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>No Active Sessions</div>
               </div>
             ) : (
-              <div style={{ display: 'grid', gap: 2 }}>
+              <div style={{ display: 'grid', gap: 8 }}>
                 {activeSessions.slice(0, 6).map((s, i) => (
                   <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`} className="community-session-card" style={{
                     background: 'rgba(255,255,255,0.03)',
@@ -447,11 +449,12 @@ export default function CommunityPage() {
           {pastSessions.length > 0 && (
             <section>
               <SectionLabel muted>Results / History</SectionLabel>
-              <div style={{ display: 'grid', gap: 1 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
                 {pastSessions.slice(0, 5).map(s => (
                   <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`} className="past-session-row" style={{
-                    background: 'transparent',
-                    border: '1px solid rgba(255,255,255,0.04)',
+                    background: 'rgba(255,255,255,0.02)',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    borderRadius: 'var(--radius-sm)',
                     padding: '12px 20px',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
                     opacity: 0.5,
