@@ -550,6 +550,7 @@ function HeroContent({ community, membership, members }) {
         <div style={{
           width: 72, height: 72, flexShrink: 0,
           border: '2px solid rgba(255,255,255,0.15)',
+          borderRadius: '50%',
           overflow: 'hidden',
           background: '#111',
         }}>
