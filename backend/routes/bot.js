@@ -11,7 +11,7 @@ const BOT_PERMISSIONS = 8
 // GET /api/bot/guilds — guilds the user admins, cross-referenced with bot membership
 router.get('/guilds', requireAuth, async (req, res) => {
   const accessToken = req.headers['x-discord-token']
-  if (!accessToken) return res.json({ guilds: [], needsRelogin: true })
+  if (!accessToken) return res.json([])
 
   // Fetch user's guilds from Discord
   let userGuilds = []
@@ -19,10 +19,10 @@ router.get('/guilds', requireAuth, async (req, res) => {
     const r = await fetch(`${DISCORD_API}/users/@me/guilds`, {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
-    if (!r.ok) return res.json({ guilds: [], needsRelogin: true })
+    if (!r.ok) return res.json([])
     userGuilds = await r.json()
   } catch {
-    return res.json({ guilds: [], needsRelogin: true })
+    return res.json([])
   }
 
   const adminGuilds = userGuilds.filter(g => (BigInt(g.permissions) & BigInt(0x8)) === BigInt(0x8))
@@ -41,11 +41,11 @@ router.get('/guilds', requireAuth, async (req, res) => {
     id: g.id,
     name: g.name,
     icon: g.icon,
-    hasBot: botGuildIds.has(g.id),
+    bot_present: botGuildIds.has(g.id),
     inviteUrl: `https://discord.com/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&permissions=${BOT_PERMISSIONS}&scope=bot+applications.commands&guild_id=${g.id}`
   }))
 
-  res.json({ guilds })
+  res.json(guilds)
 })
 
 // GET /api/bot/:guildId/channels — fetch text channels for the guild
