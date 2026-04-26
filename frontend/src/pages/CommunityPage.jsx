@@ -269,7 +269,7 @@ export default function CommunityPage() {
           </div>
         ) : (
           <div style={{
-            padding: '48px 32px 36px',
+            padding: '32px 32px 36px',
             background: 'linear-gradient(135deg, #0e0e10 0%, #080808 60%)',
             borderBottom: '1px solid rgba(255,255,255,0.04)',
             position: 'relative', overflow: 'hidden',
