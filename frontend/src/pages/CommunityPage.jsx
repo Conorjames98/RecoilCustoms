@@ -368,9 +368,10 @@ export default function CommunityPage() {
               <div style={{ display: 'grid', gap: 2 }}>
                 {announcements.slice(0, 5).map((a, i) => (
                   <div key={a.id} className="announcement-card" style={{
-                    background: '#0d0d0f',
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    borderLeft: a.pinned ? '2px solid var(--red, #dc2626)' : '2px solid transparent',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    borderLeft: a.pinned ? '3px solid var(--red)' : '3px solid transparent',
+                    borderRadius: 'var(--radius)',
                     padding: '18px 22px',
                     animation: `slideUp 0.4s ${i * 0.05}s ease both`,
                   }}>
@@ -413,8 +414,9 @@ export default function CommunityPage() {
               <div style={{ display: 'grid', gap: 2 }}>
                 {activeSessions.slice(0, 6).map((s, i) => (
                   <Link key={s.id} to={`/c/${slug}/sessions/${s.id}`} className="community-session-card" style={{
-                    background: '#0d0d0f',
-                    border: '1px solid rgba(255,255,255,0.05)',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: 'var(--radius)',
                     padding: '18px 22px',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
                     flexWrap: 'wrap',
@@ -468,46 +470,43 @@ export default function CommunityPage() {
         <div style={{ display: 'grid', gap: 16, position: 'sticky', top: 80 }}>
 
           {/* Stats strip */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr',
-            gap: 2,
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <StatBox label="Members" value={members.length} />
             <StatBox label="Sessions" value={sessions.length} />
           </div>
 
+          {/* Tags */}
+          {community.description?.includes('Tags:') && (
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 'var(--radius)', padding: '16px 18px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>Tags</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {community.description.split('\n').find(l => l.startsWith('Tags:'))?.replace('Tags: ', '').split(', ').map(tag => (
+                  <span key={tag} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', padding: '4px 12px', borderRadius: '20px', background: 'rgba(255,45,68,0.1)', border: '1px solid rgba(255,45,68,0.25)', color: 'rgba(255,255,255,0.7)' }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Community Rules */}
           {community.rules && (
-            <div style={{
-              background: '#0d0d0f',
-              border: '1px solid rgba(255,255,255,0.06)',
-              overflow: 'hidden',
-            }}>
-              <div style={{
-                padding: '14px 18px',
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
-                display: 'flex', alignItems: 'center', gap: 10,
-                background: 'rgba(220,38,38,0.05)',
-              }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red, #dc2626)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.52rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>Community Rules</span>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 'var(--radius)', padding: '16px 18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>Rules</span>
               </div>
-              <div style={{ padding: '12px 0' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {community.rules.split('\n').filter(r => r.trim()).map((rule, i) => (
-                  <div key={i} style={{
-                    display: 'flex', gap: 14, alignItems: 'flex-start',
-                    padding: '10px 18px',
-                    borderBottom: i < community.rules.split('\n').filter(r => r.trim()).length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none',
+                  <span key={i} style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem',
+                    padding: '5px 12px', borderRadius: '20px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.6)',
+                    display: 'flex', alignItems: 'center', gap: 6,
                   }}>
-                    <span style={{
-                      fontFamily: "'Black Ops One', cursive",
-                      fontSize: '0.7rem', color: 'var(--red, #dc2626)',
-                      minWidth: 18, flexShrink: 0, lineHeight: 1.6,
-                    }}>{i + 1}</span>
-                    <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7 }}>
-                      {rule.replace(/^\d+\.\s*/, '')}
-                    </span>
-                  </div>
+                    <span style={{ fontFamily: "'Black Ops One', cursive", fontSize: '0.55rem', color: 'var(--red)' }}>{i + 1}</span>
+                    {rule.replace(/^\d+\.\s*/, '')}
+                  </span>
                 ))}
               </div>
             </div>
@@ -515,33 +514,23 @@ export default function CommunityPage() {
 
           {/* Staff */}
           {mods.length > 0 && (
-            <div style={{
-              background: '#0d0d0f',
-              border: '1px solid rgba(255,255,255,0.06)',
-              overflow: 'hidden',
-            }}>
-              <div style={{
-                padding: '14px 18px',
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
-              }}>
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.52rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>Staff</span>
-              </div>
-              <div style={{ padding: '8px 0' }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 'var(--radius)', padding: '16px 18px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 14 }}>Staff</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {mods.map(m => (
                   <div key={m.id} className="staff-card" style={{
                     display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '10px 18px',
-                    transition: 'background 0.2s, border-color 0.2s',
-                    border: '1px solid transparent',
+                    padding: '10px 12px', borderRadius: 'var(--radius-sm)',
+                    transition: 'background 0.2s',
                   }}>
                     {m.avatar
-                      ? <img src={`https://cdn.discordapp.com/avatars/${m.discord_id}/${m.avatar}.png`} alt="" style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} />
-                      : <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      ? <img src={`https://cdn.discordapp.com/avatars/${m.discord_id}/${m.avatar}.png`} alt="" style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.1)', flexShrink: 0 }} />
+                      : <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)' }}>{m.username?.[0]?.toUpperCase()}</span>
                         </div>
                     }
                     <div>
-                      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.85rem', color: '#fff', letterSpacing: '0.04em' }}>{m.username}</div>
+                      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.9rem', color: '#fff', letterSpacing: '0.04em' }}>{m.username}</div>
                       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.46rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: m.role === 'owner' ? 'var(--red, #dc2626)' : 'rgba(255,255,255,0.25)' }}>{m.role}</div>
                     </div>
                   </div>
@@ -621,8 +610,9 @@ function SectionLabel({ children, muted }) {
 function StatBox({ label, value }) {
   return (
     <div style={{
-      background: '#0d0d0f',
-      border: '1px solid rgba(255,255,255,0.06)',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 'var(--radius)',
       padding: '16px 20px',
     }}>
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.46rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: 4 }}>{label}</div>
