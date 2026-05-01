@@ -187,6 +187,16 @@ router.delete('/:slug/members/:userId', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// DELETE /api/communities/:slug — delete community (owner only)
+router.delete('/:slug', requireAuth, async (req, res) => {
+  const { data: community } = await supabase.from('communities').select('id, owner_id').eq('slug', req.params.slug).single();
+  if (!community) return res.status(404).json({ error: 'Not found' });
+  if (community.owner_id !== req.user.id) return res.status(403).json({ error: 'Only the owner can delete this community' });
+  const { error } = await supabase.from('communities').delete().eq('id', community.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
 // PATCH /api/communities/:slug/members/:userId — change role (owner only)
 router.patch('/:slug/members/:userId', requireAuth, async (req, res) => {
   const { data: community } = await supabase.from('communities').select('id, owner_id').eq('slug', req.params.slug).single();

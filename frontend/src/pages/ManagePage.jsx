@@ -107,6 +107,16 @@ export default function ManagePage() {
     } catch {}
   }
 
+  async function deleteCommunity() {
+    if (!confirm(`Are you sure you want to delete "${community.name}"? This is permanent and cannot be undone.`)) return
+    try {
+      await api.delete(`/communities/${slug}`)
+      navigate('/')
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to delete community.')
+    }
+  }
+
   async function handleBotInstall() {
     setBotLoading(true)
     try {
@@ -249,6 +259,23 @@ export default function ManagePage() {
             {error && <p className="error-msg" style={{ marginBottom: 12 }}>{error}</p>}
             <button type="submit" className="btn-red" disabled={busy}>{busy ? 'Saving...' : 'Save Changes'}</button>
           </form>
+
+          {/* Danger Zone — only visible to owner */}
+          {community?.membership?.role === 'owner' && (
+            <div style={{ borderTop: '1px solid var(--red)', paddingTop: 28, marginTop: 28 }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.54rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--red)', marginBottom: 12 }}>Danger Zone</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                <div>
+                  <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.9rem', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--white)', marginBottom: 4 }}>Delete Community</div>
+                  <p style={{ fontSize: '0.68rem', color: 'var(--muted)', lineHeight: 1.5 }}>Permanently delete this community and all of its data. This cannot be undone.</p>
+                </div>
+                <button onClick={deleteCommunity} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '8px 18px', background: 'none', border: '1px solid var(--red)', color: 'var(--red)', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s, color 0.15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--red)'; e.currentTarget.style.color = '#fff' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--red)' }}
+                >Delete Community</button>
+              </div>
+            </div>
+          )}
 
           {/* Discord Bot */}
           <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 28, marginTop: 28 }}>
